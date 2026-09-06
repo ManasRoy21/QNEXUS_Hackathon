@@ -1,0 +1,112 @@
+# ─────────────────────────────────────────────────────────────────
+# QDS Threat Engine V1 — .gitignore
+# ─────────────────────────────────────────────────────────────────
+
+# ── Python ──────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ── Python virtual environments ──────────────────────────────────
+venv/
+.venv/
+env/
+.env_dir/
+ENV/
+env.bak/
+venv.bak/
+
+# ── pytest / coverage ────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.coveragerc
+
+# ── Node.js / Next.js ────────────────────────────────────────────
+node_modules/
+.next/
+out/
+.nuxt/
+dist/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.turbo/
+
+# ── Environment variables (NEVER commit secrets) ─────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+*.env
+
+# ── Build / compile output ───────────────────────────────────────
+*.pyc
+*.pyo
+*.pyd
+*.class
+*.o
+*.a
+*.lib
+*.dll
+*.dylib
+
+# ── Logs ─────────────────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ── OS artifacts ─────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── IDEs & editors ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# ── Docker ───────────────────────────────────────────────────────
+*.dockerignore
+
+# ── Jupyter ──────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Qiskit / quantum simulation artifacts ────────────────────────
+qasm_output/
+*.qasm
+transpiled_circuits/
+
+# ── Benchmark / test output ──────────────────────────────────────
+backend/app/tests/benchmark_results.json
