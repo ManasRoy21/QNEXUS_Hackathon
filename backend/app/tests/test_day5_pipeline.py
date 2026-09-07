@@ -407,5 +407,11 @@ def main() -> None:
     print(f"{'=' * 80}")
 
 
+def test_day5_verification():
+    """Pytest wrapper for Day 5 symmetrization guard verification."""
+    main()
+
+
 if __name__ == "__main__":
     main()
+

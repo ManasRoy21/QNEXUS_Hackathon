@@ -2,9 +2,9 @@
 
 import os
 try:
-    from pydantic_settings import BaseSettings
+    from pydantic_settings import BaseSettings, SettingsConfigDict
 except ImportError:
-    from pydantic import BaseModel as BaseSettings
+    from pydantic import BaseModel as BaseSettings, ConfigDict as SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -12,9 +12,8 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+    model_config = SettingsConfigDict(case_sensitive=True, env_file=".env", extra="ignore")
 
 
 settings = Settings()
+

@@ -122,5 +122,11 @@ def run_day2_verification():
     print("=" * 80)
 
 
+def test_day2_verification():
+    """Pytest wrapper for Day 2 multi-party QDS verification."""
+    run_day2_verification()
+
+
 if __name__ == "__main__":
     run_day2_verification()
+

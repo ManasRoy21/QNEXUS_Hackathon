@@ -244,5 +244,11 @@ def run_day3_verification():
     print("=================================================================")
 
 
+def test_day3_verification():
+    """Pytest wrapper for Day 3 QDS threat detection verification."""
+    run_day3_verification()
+
+
 if __name__ == "__main__":
     run_day3_verification()
+

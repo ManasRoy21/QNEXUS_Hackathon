@@ -506,5 +506,11 @@ def main() -> None:
     print(f"{'=' * 80}")
 
 
+def test_day7_verification():
+    """Pytest wrapper for Day 7 postselection layer & Hoeffding bounds."""
+    main()
+
+
 if __name__ == "__main__":
     main()
+

@@ -19,7 +19,7 @@ DIVIDER = "═" * 80
 THIN_DIVIDER = "─" * 80
 
 
-def test_workflow_1_clean_lifecycle(client: TestClient) -> Dict[str, Any]:
+def test_workflow_1_clean_lifecycle(client: TestClient) -> None:
     """Workflow 1: Clean Keygen -> Sign -> Verify."""
     print(f"\n{DIVIDER}")
     print(" WORKFLOW 1: Clean Lifecycle (Keygen -> Sign -> Verify)")
@@ -77,7 +77,6 @@ def test_workflow_1_clean_lifecycle(client: TestClient) -> Dict[str, Any]:
 
     dur = time.perf_counter() - t0
     print(f"\n  [PASSED] Workflow 1: Clean Lifecycle Verified in {dur*1000:.2f}ms.")
-    return {"session_id": sid, "duration": dur}
 
 
 def test_workflow_2_attack_injections(client: TestClient) -> None:

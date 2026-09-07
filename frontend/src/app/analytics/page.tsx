@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
     } catch (err: any) {
       if (thisCall !== fetchCount.current) return;
       console.warn('Failed to load metrics:', err.message);
-      setError('Could not reach /api/v1/metrics. Verify FastAPI backend is running on port 8001.');
+      setError('Could not reach /api/v1/metrics. Verify FastAPI backend is running on port 8000.');
     } finally {
       if (thisCall === fetchCount.current) setLoading(false);
     }

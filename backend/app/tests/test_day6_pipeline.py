@@ -483,5 +483,11 @@ def main() -> None:
     print(f"{'=' * 80}")
 
 
+def test_day6_verification():
+    """Pytest wrapper for Day 6 detector cross-check & 6-threat regression."""
+    main()
+
+
 if __name__ == "__main__":
     main()
+
