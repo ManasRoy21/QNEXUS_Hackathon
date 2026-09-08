@@ -7,7 +7,6 @@ interface SensitivitySliderProps {
   intensity: number;
   onChange: (value: number) => void;
   selectedAttack?: AttackType | null;
-  // Specific options
   spoofedKey?: string;
   onSpoofedKeyChange?: (val: string) => void;
   replayAge?: number;
@@ -41,20 +40,20 @@ export default function SensitivitySlider({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 className="text-xs font-mono font-medium text-slate-400 uppercase tracking-wider">
-          Threat Perturbation Parameters
+      <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 text-xs font-mono">
+        <h3 className="font-bold text-[#64748B] uppercase tracking-wider">
+          PERTURBATION PARAMETERS
         </h3>
-        <span className="text-xs font-mono font-bold text-rose-400">
+        <span className="font-bold text-[#071842] bg-[#F1F5F9] px-2.5 py-0.5 rounded border border-[#CBD5E1]">
           Intensity: {intensityPct}%
         </span>
       </div>
 
       {/* Main Intensity Slider */}
       <div className="space-y-2">
-        <div className="flex justify-between text-xs text-slate-400">
-          <span>Scalar Perturbation</span>
-          <span className="font-mono text-cyan-300">{intensity.toFixed(2)}</span>
+        <div className="flex justify-between text-xs font-mono text-[#475569]">
+          <span className="font-semibold uppercase text-[10px]">Scalar Perturbation Strength</span>
+          <span className="font-bold text-[#071842]">{intensity.toFixed(2)}</span>
         </div>
         <input
           type="range"
@@ -64,17 +63,17 @@ export default function SensitivitySlider({
           value={intensity}
           disabled={disabled}
           onChange={(e) => onChange(parseFloat(e.target.value))}
-          className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500 disabled:opacity-50"
+          className="w-full h-2 bg-[#E2E8F0] rounded-lg appearance-none cursor-pointer accent-[#071842] disabled:opacity-50"
         />
-        <div className="flex justify-between text-[10px] font-mono text-slate-500">
-          <span>5% (Subtle)</span>
-          <span>50% (Standard)</span>
-          <span>100% (Total Sabotage)</span>
+        <div className="flex justify-between text-[10px] font-mono text-[#64748B]">
+          <span>5% (Subtle Noise)</span>
+          <span>45% (Eavesdropping)</span>
+          <span>100% (Total Blinding)</span>
         </div>
       </div>
 
       {/* Preset Buttons */}
-      <div className="flex space-x-2 pt-1">
+      <div className="flex space-x-2 pt-1 font-mono">
         {[
           { label: 'Low (20%)', val: 0.2 },
           { label: 'Medium (45%)', val: 0.45 },
@@ -86,10 +85,10 @@ export default function SensitivitySlider({
             type="button"
             disabled={disabled}
             onClick={() => onChange(p.val)}
-            className={`flex-1 py-1 text-[11px] font-mono rounded border transition-colors ${
+            className={`flex-1 py-1.5 text-[11px] rounded transition-all font-semibold ${
               Math.abs(intensity - p.val) < 0.02
-                ? 'bg-rose-500/20 text-rose-300 border-rose-500/50'
-                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                ? 'btn-dark'
+                : 'bg-[#F8FAF9] border border-[#CBD5E1] text-[#475569] hover:text-[#071842]'
             }`}
           >
             {p.label}
@@ -98,36 +97,40 @@ export default function SensitivitySlider({
       </div>
 
       {/* Attack-Specific Contextual Fields */}
-      <div className="pt-2 border-t border-slate-800/80 space-y-3">
+      <div className="pt-3 border-t border-[#E2E8F0] space-y-3 font-mono">
         {selectedAttack === 'IMPERSONATION' && (
           <div className="space-y-1">
-            <label className="text-[11px] font-mono text-slate-400">Spoofed Public Key Credential</label>
+            <label className="text-[11px] font-semibold text-[#64748B] uppercase block">
+              Spoofed Public Key Credential (Mallory)
+            </label>
             <input
               type="text"
               value={spoofedKey}
               onChange={(e) => onSpoofedKeyChange?.(e.target.value)}
-              className="w-full text-xs font-mono bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-amber-300"
+              className="w-full text-xs font-mono bg-[#F8FAF9] border border-[#CBD5E1] rounded px-3 py-2 text-[#071842] font-semibold focus:border-[#20C8A7] focus:outline-none"
             />
           </div>
         )}
 
         {selectedAttack === 'REPLAY' && (
           <div className="space-y-1">
-            <label className="text-[11px] font-mono text-slate-400">Replay Age Offset (Seconds)</label>
+            <label className="text-[11px] font-semibold text-[#64748B] uppercase block">
+              Replay Age Offset (Seconds beyond 60s window)
+            </label>
             <input
               type="number"
               value={replayAge}
               onChange={(e) => onReplayAgeChange?.(parseFloat(e.target.value))}
-              className="w-full text-xs font-mono bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-yellow-300"
+              className="w-full text-xs font-mono bg-[#F8FAF9] border border-[#CBD5E1] rounded px-3 py-2 text-[#071842] font-semibold focus:border-[#20C8A7] focus:outline-none"
             />
           </div>
         )}
 
         {selectedAttack === 'REPUDIATION' && (
           <div className="space-y-2">
-            <div className="flex justify-between text-[11px] font-mono text-slate-400">
-              <span>Dishonest Asymmetry Ratio (Charlie block)</span>
-              <span className="text-purple-300 font-bold">{(asymmetryRate * 100).toFixed(0)}%</span>
+            <div className="flex justify-between text-[11px] text-[#475569]">
+              <span className="font-semibold uppercase">Dishonest Alice Asymmetry Ratio (Charlie block)</span>
+              <span className="text-[#071842] font-bold">{(asymmetryRate * 100).toFixed(0)}%</span>
             </div>
             <input
               type="range"
@@ -136,16 +139,16 @@ export default function SensitivitySlider({
               step="0.05"
               value={asymmetryRate}
               onChange={(e) => onAsymmetryRateChange?.(parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+              className="w-full h-2 bg-[#E2E8F0] rounded-lg appearance-none cursor-pointer accent-[#263EDC]"
             />
           </div>
         )}
 
         {selectedAttack === 'DETECTOR_SIDE_CHANNEL' && (
           <div className="space-y-2">
-            <div className="flex justify-between text-[11px] font-mono text-slate-400">
-              <span>Path B Blinding Asymmetry Bias</span>
-              <span className="text-pink-300 font-bold">{(pathBias * 100).toFixed(0)}%</span>
+            <div className="flex justify-between text-[11px] text-[#475569]">
+              <span className="font-semibold uppercase">Path B Laser Blinding Asymmetry</span>
+              <span className="text-rose-600 font-bold">{(pathBias * 100).toFixed(0)}%</span>
             </div>
             <input
               type="range"
@@ -154,24 +157,24 @@ export default function SensitivitySlider({
               step="0.05"
               value={pathBias}
               onChange={(e) => onPathBiasChange?.(parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-pink-500"
+              className="w-full h-2 bg-[#E2E8F0] rounded-lg appearance-none cursor-pointer accent-rose-600"
             />
           </div>
         )}
 
         {/* Target Verifier Toggle */}
         <div className="flex items-center justify-between text-xs pt-1">
-          <span className="text-slate-400 font-mono">Target Channel</span>
-          <div className="flex space-x-1">
+          <span className="text-[#64748B] font-semibold uppercase text-[10px]">Target Fiber Channel</span>
+          <div className="flex space-x-1.5">
             {(['bob', 'charlie'] as const).map((v) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => onTargetVerifierChange?.(v)}
-                className={`px-2.5 py-1 text-[11px] font-mono uppercase rounded transition-colors ${
+                className={`px-3 py-1 text-[11px] uppercase rounded transition-colors font-semibold ${
                   targetVerifier === v
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50'
-                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'btn-dark'
+                    : 'bg-[#F8FAF9] border border-[#CBD5E1] text-[#475569] hover:text-[#071842]'
                 }`}
               >
                 {v}

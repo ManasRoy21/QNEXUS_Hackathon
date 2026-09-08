@@ -1,34 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --background: #f8faf9;
+  --foreground: #071842;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #071842;
+  background-color: #f8faf9;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
   overflow-x: hidden;
+  text-rendering: optimizeLegibility;
 }
 
-/* Custom scrollbar for data streams and log panels */
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: 'Newsreader', 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+.font-sans {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-grotesk {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+:focus-visible {
+  outline: 2px solid #20c8a7;
+  outline-offset: 2px;
+}
+
+::selection {
+  color: #040b1e;
+  background-color: #20c8a7;
+}
+
+/* Quvora Signature Button */
+.btn-dark {
+  background-color: #071842 !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-dark:hover {
+  background-color: #0b1e4e !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(7, 24, 66, 0.15);
+}
+
+.btn-teal {
+  background-color: #20c8a7 !important;
+  color: #040b1e !important;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-teal:hover {
+  background-color: #1ab899 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(32, 200, 167, 0.25);
+}
+
+/* Quvora Technical Blueprint & Dark Grid Backgrounds */
+.bg-blueprint {
+  background-color: #f8faf9;
+  background-image: linear-gradient(90deg, rgba(226, 232, 240, 0.55) 1px, transparent 1px),
+                    linear-gradient(rgba(226, 232, 240, 0.55) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-dark-grid {
+  background-color: #071842;
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Precision Chamfered Tech Cards */
+.chamfer-card {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% 100%,
+    16px 100%,
+    0 calc(100% - 16px)
+  );
+}
+
+.chamfer-card-sm {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+}
+
+/* Subtle Technical Card Border Glow */
+.tech-card {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.tech-card:hover {
+  border-color: rgba(7, 24, 66, 0.35);
+  box-shadow: 0 10px 25px -5px rgba(7, 24, 66, 0.08);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }

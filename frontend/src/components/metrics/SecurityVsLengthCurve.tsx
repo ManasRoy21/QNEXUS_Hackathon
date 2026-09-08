@@ -24,55 +24,65 @@ const HOEFFDING_CURVE_DATA = [
 export default function SecurityVsLengthCurve() {
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
         <div>
-          <h3 className="text-xs font-mono font-medium text-slate-400 uppercase tracking-wider">
-            Information-Theoretic Security vs Signature Length (L)
+          <h3 className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider">
+            SECURITY CONVERGENCE VS LENGTH (L)
           </h3>
-          <p className="text-[11px] text-slate-500 font-mono">
-            Hoeffding Inequality P(Error) ≤ 2 exp(-2 · L · (e_rep - e_rob)²)
+          <p className="text-[11px] text-[#071842] font-mono font-semibold">
+            P(Failure) ≤ 2 exp(-2 · L · (e_rep - e_rob)²)
           </p>
         </div>
-        <span className="text-[11px] font-mono text-indigo-400">
-          Asymptotic Convergence
+        <span className="text-[11px] font-mono font-bold text-[#263EDC] bg-[#EFF4FF] px-2.5 py-0.5 rounded border border-[#CBD5E1]">
+          Exponential Hoeffding Decay
         </span>
       </div>
 
-      <div className="h-60 w-full">
+      <div className="h-64 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={HOEFFDING_CURVE_DATA} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+          <LineChart data={HOEFFDING_CURVE_DATA} margin={{ top: 15, right: 25, left: -20, bottom: 15 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
             <XAxis
               dataKey="length"
-              stroke="#64748b"
-              tick={{ fontSize: 11, fill: '#94a3b8' }}
-              label={{ value: 'Bit Length (L)', position: 'insideBottom', offset: -4, fill: '#64748b', fontSize: 10 }}
+              stroke="#94A3B8"
+              tick={{ fontSize: 11, fill: '#475569', fontFamily: 'JetBrains Mono' }}
+              label={{
+                value: 'Digest Bit Length (L)',
+                position: 'insideBottom',
+                offset: -8,
+                fill: '#64748B',
+                fontSize: 10,
+                fontFamily: 'JetBrains Mono',
+              }}
             />
             <YAxis
-              stroke="#64748b"
-              tick={{ fontSize: 11, fill: '#94a3b8' }}
+              stroke="#94A3B8"
+              tick={{ fontSize: 11, fill: '#475569', fontFamily: 'JetBrains Mono' }}
               domain={[0.8, 1.0]}
               tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#090d16',
-                borderColor: '#1e293b',
-                borderRadius: '6px',
+                backgroundColor: '#071842',
+                borderColor: '#1D293D',
+                borderRadius: '8px',
+                color: '#FFFFFF',
+                fontFamily: 'JetBrains Mono',
                 fontSize: '12px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
               }}
               formatter={(value: any, _: string, props: any) => [
                 `${(Number(value) * 100).toFixed(4)}% (P_fail: ${props?.payload?.failureProb})`,
-                'Security Level',
+                'Information-Theoretic Security',
               ]}
             />
             <Line
               type="monotone"
               dataKey="security"
-              stroke="#818cf8"
+              stroke="#263EDC"
               strokeWidth={2.5}
-              dot={{ fill: '#818cf8', r: 4 }}
-              activeDot={{ r: 6, fill: '#a5b4fc' }}
+              dot={{ fill: '#263EDC', r: 4 }}
+              activeDot={{ r: 6, fill: '#20C8A7' }}
             />
           </LineChart>
         </ResponsiveContainer>

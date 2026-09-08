@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { SecurityVerdict, ThreatSeverity } from '@/types';
+import { ShieldCheck, AlertOctagon, CheckCircle2, Cpu } from 'lucide-react';
 
 interface ThreatVerdictGaugeProps {
   verdict?: SecurityVerdict | string | null;
@@ -24,10 +25,10 @@ export default function ThreatVerdictGauge({
 }: ThreatVerdictGaugeProps) {
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 space-y-3 min-h-[220px]">
-        <div className="h-10 w-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin" />
-        <span className="text-sm text-cyan-300 font-mono animate-pulse">
-          Evaluating Hoeffding Bounds...
+      <div className="flex flex-col items-center justify-center p-8 space-y-3 min-h-[240px]">
+        <div className="h-10 w-10 border-4 border-[#071842]/20 border-t-[#20C8A7] rounded-full animate-spin" />
+        <span className="text-xs text-[#071842] font-mono font-semibold animate-pulse uppercase tracking-wider">
+          Evaluating Hoeffding Bounds &amp; Pauli States...
         </span>
       </div>
     );
@@ -35,14 +36,18 @@ export default function ThreatVerdictGauge({
 
   if (!verdict) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 space-y-2 min-h-[220px] text-center">
-        <div className="h-12 w-12 rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 text-xl font-mono">
+      <div className="flex flex-col items-center justify-center p-8 space-y-3 min-h-[240px] text-center">
+        <div className="h-12 w-12 rounded-full bg-[#F1F5F9] border border-[#CBD5E1] flex items-center justify-center text-[#071842] text-xl font-serif">
           Ψ
         </div>
-        <span className="text-sm font-semibold text-slate-300">Engine Standby</span>
-        <p className="text-xs text-slate-500 max-w-xs">
-          Execute a signature verification or attack injection to evaluate quantum channel security.
-        </p>
+        <div>
+          <span className="text-sm font-bold text-[#071842] font-grotesk block">
+            Hoeffding Engine Standby
+          </span>
+          <p className="text-xs text-[#64748B] max-w-xs mt-1 font-sans">
+            Execute a quantum signature verification to compute physical channel QBER and Born-rule bounds.
+          </p>
+        </div>
       </div>
     );
   }
@@ -52,60 +57,87 @@ export default function ThreatVerdictGauge({
   const erobPct = e_rob !== null && e_rob !== undefined ? (e_rob * 100).toFixed(2) : null;
   const fidelityPct = fidelity !== null && fidelity !== undefined ? (fidelity * 100).toFixed(1) : null;
 
-  const severityColors: Record<string, string> = {
-    LOW: 'text-emerald-400 bg-emerald-950/60 border-emerald-800/80',
-    MEDIUM: 'text-amber-400 bg-amber-950/60 border-amber-800/80',
-    HIGH: 'text-orange-400 bg-orange-950/60 border-orange-800/80',
-    CRITICAL: 'text-rose-400 bg-rose-950/60 border-rose-800/80 animate-pulse',
+  const severityStyles: Record<string, { badge: string; label: string }> = {
+    LOW: {
+      badge: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+      label: 'LOW SEVERITY',
+    },
+    MEDIUM: {
+      badge: 'bg-amber-50 text-amber-700 border-amber-300',
+      label: 'MEDIUM SEVERITY',
+    },
+    HIGH: {
+      badge: 'bg-orange-50 text-orange-700 border-orange-300',
+      label: 'HIGH SEVERITY',
+    },
+    CRITICAL: {
+      badge: 'bg-rose-50 text-rose-700 border-rose-300 animate-pulse font-black',
+      label: 'CRITICAL BREACH',
+    },
   };
 
-  const sevClass = severityColors[severity?.toUpperCase() || 'LOW'] || severityColors.LOW;
+  const sevClass = severityStyles[severity?.toUpperCase() || 'LOW'] || severityStyles.LOW;
 
   return (
-    <div className="flex flex-col items-center justify-between p-4 space-y-4">
-      <div className="w-full flex items-center justify-between text-xs text-slate-400 font-mono border-b border-slate-800 pb-2">
-        <span>SECURITY VERDICT</span>
-        <span className={`px-2 py-0.5 rounded border text-[11px] font-bold ${sevClass}`}>
-          {severity?.toUpperCase() || 'LOW'} SEVERITY
+    <div className="flex flex-col justify-between space-y-4">
+      {/* Top Category Tag */}
+      <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 text-xs font-mono">
+        <div className="flex items-center space-x-2">
+          <span className="font-bold text-[#64748B] uppercase tracking-wider">
+            SECURITY VERDICT
+          </span>
+        </div>
+        <span className={`px-2 py-0.5 rounded border text-[10px] font-mono font-bold uppercase tracking-wider ${sevClass.badge}`}>
+          {sevClass.label}
         </span>
       </div>
 
+      {/* Main Verdict Display Banner */}
       <div
-        className={`w-full py-4 px-3 rounded-lg border text-center font-black tracking-wider transition-all duration-300 ${
+        className={`p-5 rounded-xl border text-center transition-all ${
           isSecure
-            ? 'bg-emerald-950/50 border-emerald-600/70 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.15)]'
-            : 'bg-rose-950/50 border-rose-600/70 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.2)]'
+            ? 'bg-[#E6FBF7] border-[#20C8A7] text-[#071842]'
+            : 'bg-rose-50 border-rose-300 text-rose-950'
         }`}
       >
-        <div className="text-2xl font-black">{verdict}</div>
-        <div className="text-xs font-mono font-medium mt-1 opacity-90">
-          {isSecure ? 'No Physical Anomaly Detected' : `VECTOR: ${primaryAttackVector}`}
+        <div className="flex items-center justify-center space-x-2">
+          {isSecure ? (
+            <CheckCircle2 className="w-6 h-6 text-[#20C8A7]" />
+          ) : (
+            <AlertOctagon className="w-6 h-6 text-rose-600 animate-bounce" />
+          )}
+          <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
+            {verdict}
+          </span>
+        </div>
+        <div className="text-xs font-mono font-semibold mt-1 tracking-wider uppercase opacity-80">
+          {isSecure ? 'Physical Channel Verified • ITS Certified' : `BREACH DETECTED: ${primaryAttackVector}`}
         </div>
       </div>
 
-      {/* Metric Readout Grid */}
-      <div className="grid grid-cols-3 gap-2 w-full text-center">
-        <div className="p-2 rounded bg-slate-950 border border-slate-800/80">
-          <div className="text-[10px] text-slate-400 uppercase font-mono">QBER</div>
+      {/* Precision Metric Readout Grid */}
+      <div className="grid grid-cols-3 gap-2.5 w-full text-center font-mono">
+        <div className="p-3 rounded-lg bg-[#F8FAF9] border border-[#E2E8F0]">
+          <div className="text-[10px] text-[#64748B] uppercase font-semibold">QBER</div>
           <div
-            className={`text-sm font-bold font-mono ${
-              qber && e_rob && qber > e_rob ? 'text-rose-400 font-black' : 'text-slate-200'
+            className={`text-base sm:text-lg font-bold mt-0.5 ${
+              qber && e_rob && qber > e_rob ? 'text-rose-600 font-black' : 'text-[#071842]'
             }`}
           >
             {qberPct !== null ? `${qberPct}%` : '0.00%'}
           </div>
         </div>
 
-        <div className="p-2 rounded bg-slate-950 border border-slate-800/80">
-          <div className="text-[10px] text-slate-400 uppercase font-mono">e_rob Bound</div>
-          <div className="text-sm font-bold font-mono text-cyan-400">
-            {erobPct !== null ? `≤ ${erobPct}%` : 'N/A'}
+        <div className="p-3 rounded-lg bg-[#F8FAF9] border border-[#E2E8F0]">
+          <div className="text-[10px] text-[#64748B] uppercase font-semibold">e_rob Bound</div>
+          <div className="text-base sm:text-lg font-bold text-[#071842] mt-0.5">
+            {erobPct !== null ? `≤ ${erobPct}%` : '6.58%'}
           </div>
         </div>
 
-        <div className="p-2 rounded bg-slate-950 border border-slate-800/80">
-          <div className="text-[10px] text-slate-400 uppercase font-mono">State Fidelity</div>
-          <div className="text-sm font-bold font-mono text-emerald-400">
+        <div className="p-3 rounded-lg bg-[#F8FAF9] border border-[#E2E8F0]">
+          <div className="text-[10px] text-[#64748B] uppercase font-semibold">Fidelity</div>
+          <div className="text-base sm:text-lg font-bold text-[#20C8A7] mt-0.5">
             {fidelityPct !== null ? `${fidelityPct}%` : '100%'}
           </div>
         </div>

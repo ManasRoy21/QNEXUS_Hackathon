@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ThreatVerdictGauge from '@/components/dashboard/ThreatVerdictGauge';
 import ReasonCodeBadges from '@/components/dashboard/ReasonCodeBadges';
 import LiveHistogram from '@/components/dashboard/LiveHistogram';
 import CircuitVisualizer from '@/components/circuit/CircuitVisualizer';
 import { useSimulation } from '@/hooks/useSimulation';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { Play, RotateCcw, Activity, Shield, Key, FileCheck, Layers } from 'lucide-react';
 
 export default function DashboardPage() {
   const [numBits, setNumBits] = useState<number>(16);
@@ -31,7 +32,6 @@ export default function DashboardPage() {
     connected: wsConnected,
   } = useWebSocket(undefined, { sessionId, autoConnect: true });
 
-  // Handle full lifecycle run
   const handleRunLifecycle = async () => {
     try {
       await runFullLifecycle(numBits, verifierId);
@@ -44,194 +44,278 @@ export default function DashboardPage() {
   const currentErob = verifyData?.e_rob ?? 0.0658;
 
   return (
-    <div className="space-y-6">
-      {/* Top Operations Header & Control Bar */}
-      <div className="bg-slate-900/90 border border-slate-800/90 rounded-xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-black/40">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <h2 className="text-xl font-black text-slate-100 tracking-wide">
-              Quantum SOC Operations Console
-            </h2>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/70 border border-cyan-800 text-cyan-300">
-              Deterministic v1
-            </span>
-          </div>
-          <p className="text-xs text-slate-400">
-            Real-time multi-party Quantum Digital Signatures (QDS) security evaluation and Hoeffding statistical bounds.
-          </p>
-        </div>
-
-        {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {/* Bit Length Selector */}
-          <div className="flex items-center space-x-1 bg-slate-950 border border-slate-800 rounded-lg p-1 text-xs">
-            <span className="text-slate-500 px-2 font-mono">Bits:</span>
-            {[16, 32, 64].map((b) => (
-              <button
-                key={b}
-                disabled={loading}
-                onClick={() => setNumBits(b)}
-                className={`px-2 py-1 font-mono rounded transition-colors ${
-                  numBits === b
-                    ? 'bg-cyan-500 text-slate-950 font-bold'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {b}
-              </button>
-            ))}
-          </div>
-
-          {/* Verifier Selector */}
-          <div className="flex items-center space-x-1 bg-slate-950 border border-slate-800 rounded-lg p-1 text-xs">
-            <span className="text-slate-500 px-2 font-mono">Verifier:</span>
-            {(['bob', 'charlie', 'both'] as const).map((v) => (
-              <button
-                key={v}
-                disabled={loading}
-                onClick={() => setVerifierId(v)}
-                className={`px-2 py-1 font-mono uppercase rounded transition-colors ${
-                  verifierId === v
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-
-          {/* Run Full Lifecycle Button */}
-          <button
-            onClick={handleRunLifecycle}
-            disabled={loading}
-            className={`px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center space-x-2 ${
-              loading
-                ? 'bg-cyan-900/60 text-cyan-300 border border-cyan-700 cursor-wait'
-                : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)] cursor-pointer'
-            }`}
-          >
-            {loading ? (
-              <>
-                <span className="h-3 w-3 border-2 border-slate-950 border-t-cyan-200 rounded-full animate-spin" />
-                <span>Simulating...</span>
-              </>
-            ) : (
-              <>
-                <span>▶ Run Clean Lifecycle</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Session Metadata & Status Pill */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs font-mono text-slate-400">
-        <div className="flex items-center space-x-3">
-          <span>
-            Active Session:{' '}
-            <strong className="text-cyan-400">{sessionId || 'None (Click Run to Start)'}</strong>
-          </span>
-          {step !== 'idle' && (
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 uppercase">
-              Phase: {step}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <span
-            className={`h-2 w-2 rounded-full ${
-              wsConnected ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
-            }`}
-          />
-          <span>{wsConnected ? 'WebSocket Live Feed Online' : 'WebSocket Standby'}</span>
-        </div>
-      </div>
-
-      {/* Error Alert if any */}
-      {error && (
-        <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs font-mono">
-          <strong>ERROR:</strong> {error}
-        </div>
-      )}
-
-      {/* Main Grid: Gauge (1 col) and Reason Codes (2 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-md">
-          <ThreatVerdictGauge
-            verdict={verifyData?.verdict}
-            severity={verifyData?.severity}
-            qber={currentQber}
-            e_rob={currentErob}
-            primaryAttackVector={verifyData?.primary_attack_vector}
-            fidelity={verifyData?.fidelity}
-            loading={loading}
-          />
-        </div>
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 lg:col-span-2 shadow-md flex flex-col justify-between">
-          <ReasonCodeBadges
-            reasonCodes={verifyData?.reason_codes || []}
-            diagnosticMessage={verifyData?.diagnostic_message}
-            postselectedShots={verifyData?.postselected_shots}
-            discardedShots={verifyData?.discarded_shots}
-          />
-        </div>
-      </div>
-
-      {/* Secondary Grid: Live Histogram and Circuit Visualizer */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-md">
-          <LiveHistogram
-            qber={currentQber}
-            postselectedShots={verifyData?.postselected_shots}
-          />
-        </div>
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-md">
-          <CircuitVisualizer
-            currentStage={step === 'idle' ? 'keygen' : (step as any)}
-          />
-        </div>
-      </div>
-
-      {/* WebSocket Real-Time Frame Telemetry Terminal */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-md space-y-2">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div className="flex items-center space-x-2">
-            <span className="h-2 w-2 rounded-full bg-cyan-400" />
-            <h3 className="text-xs font-mono font-medium text-slate-300 uppercase tracking-wider">
-              WebSocket Telemetry Stream (/ws/stream)
-            </h3>
-          </div>
-          <span className="text-[11px] font-mono text-slate-500">
-            {telemetryLog.length} frames captured
-          </span>
-        </div>
-        <div className="bg-slate-950 rounded-lg p-3 max-h-44 overflow-y-auto font-mono text-[11px] space-y-1">
-          {telemetryLog.length === 0 ? (
-            <div className="text-slate-600 italic">
-              Awaiting telemetry broadcast... (Trigger a simulation to stream live frames)
+    <div className="space-y-8">
+      {/* ── Top Operations Control Banner (Quvora Blueprint Header) ── */}
+      <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-6">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider">
+                MODULE C: REAL-TIME SOC
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#E6FBF7] text-[#071842] border border-[#20C8A7] font-semibold">
+                DETERMINISTIC V1
+              </span>
             </div>
-          ) : (
-            telemetryLog.map((frame, idx) => (
-              <div key={idx} className="flex items-center space-x-3 text-slate-300">
-                <span className="text-slate-500">
-                  {new Date(frame.timestamp * 1000).toLocaleTimeString()}
-                </span>
-                <span className="px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-cyan-400 font-bold">
-                  {frame.event_type}
-                </span>
-                <span className="text-slate-400">
-                  QBER: {(frame.qber * 100).toFixed(2)}%
-                </span>
-                <span className="text-slate-400">
-                  Threat: <strong className={frame.active_threat !== 'CLEAN' ? 'text-rose-400' : 'text-emerald-400'}>{frame.active_threat}</strong>
-                </span>
-                <span className="text-slate-500 truncate max-w-xs">
-                  {frame.channel_telemetry?.message || ''}
-                </span>
-              </div>
-            ))
-          )}
+            <h1 className="font-serif text-3xl sm:text-4xl text-[#071842] tracking-tight">
+              Quantum Operations Console
+            </h1>
+            <p className="text-xs sm:text-sm text-[#475569] font-sans max-w-2xl">
+              Real-time continuous-variable quantum signature evaluation against finite-key Hoeffding concentration bounds.
+            </p>
+          </div>
+
+          {/* Quick Session Readout */}
+          <div className="flex items-center space-x-3 text-xs font-mono">
+            <div className="bg-[#F8FAF9] border border-[#E2E8F0] px-3.5 py-2 rounded-lg">
+              <span className="text-[#64748B] block text-[10px] uppercase">Session ID</span>
+              <span className="font-bold text-[#071842]">{sessionId ? sessionId.slice(0, 8) + '...' : 'Standby'}</span>
+            </div>
+            <div className="bg-[#F8FAF9] border border-[#E2E8F0] px-3.5 py-2 rounded-lg">
+              <span className="text-[#64748B] block text-[10px] uppercase">Socket Stream</span>
+              <span className={`font-bold ${wsConnected ? 'text-[#20C8A7]' : 'text-amber-600'}`}>
+                {wsConnected ? 'LIVE' : 'DISCONNECTED'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Controls Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 font-mono">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Bit Length Selector */}
+            <div className="flex items-center space-x-1.5 bg-[#F8FAF9] border border-[#CBD5E1] rounded-lg p-1 text-xs">
+              <span className="text-[#64748B] px-2 font-semibold uppercase text-[10px]">Bits:</span>
+              {[16, 32, 64].map((b) => (
+                <button
+                  key={b}
+                  disabled={loading}
+                  onClick={() => setNumBits(b)}
+                  className={`px-3 py-1 rounded transition-all font-semibold ${
+                    numBits === b
+                      ? 'btn-dark'
+                      : 'text-[#475569] hover:text-[#071842]'
+                  }`}
+                >
+                  {b}
+                </button>
+              ))}
+            </div>
+
+            {/* Verifier Selector */}
+            <div className="flex items-center space-x-1.5 bg-[#F8FAF9] border border-[#CBD5E1] rounded-lg p-1 text-xs">
+              <span className="text-[#64748B] px-2 font-semibold uppercase text-[10px]">Verifier:</span>
+              {(['bob', 'charlie', 'both'] as const).map((v) => (
+                <button
+                  key={v}
+                  disabled={loading}
+                  onClick={() => setVerifierId(v)}
+                  className={`px-3 py-1 uppercase rounded transition-all font-semibold ${
+                    verifierId === v
+                      ? 'btn-dark'
+                      : 'text-[#475569] hover:text-[#071842]'
+                  }`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Primary Operations Actions */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button
+              onClick={handleRunLifecycle}
+              disabled={loading}
+              className="btn-dark px-5 py-2 rounded-lg text-xs font-semibold inline-flex items-center space-x-2 shadow-sm disabled:opacity-50"
+            >
+              <Play className="w-3.5 h-3.5 text-[#20C8A7]" />
+              <span>{loading ? 'Executing Protocol...' : 'Run Full Lifecycle'}</span>
+            </button>
+
+            <button
+              onClick={() => runKeygen(numBits)}
+              disabled={loading}
+              className="px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors disabled:opacity-50"
+              title="Keygen only"
+            >
+              <Key className="w-3.5 h-3.5 inline mr-1" />
+              <span>Keygen</span>
+            </button>
+
+            <button
+              onClick={() => runSign('QDS-DEFENSE-CONTRACT-VALIDATION')}
+              disabled={loading || step === 'idle'}
+              className="px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors disabled:opacity-50"
+              title="Sign message"
+            >
+              <FileCheck className="w-3.5 h-3.5 inline mr-1" />
+              <span>Sign</span>
+            </button>
+
+            <button
+              onClick={() => runVerify(verifierId)}
+              disabled={loading || (step !== 'sign' && step !== 'attack' && step !== 'symmetrize')}
+              className="px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors disabled:opacity-50"
+              title="Verify signature"
+            >
+              <Shield className="w-3.5 h-3.5 inline mr-1" />
+              <span>Verify</span>
+            </button>
+
+            <button
+              onClick={reset}
+              disabled={loading}
+              className="p-2 rounded-lg text-xs bg-[#F8FAF9] border border-[#CBD5E1] text-[#64748B] hover:text-[#071842] transition-colors"
+              title="Reset Console"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="p-3 bg-rose-50 border border-rose-300 rounded-lg text-xs font-mono text-rose-700">
+            <strong>ERROR:</strong> {error}
+          </div>
+        )}
+      </div>
+
+      {/* ── Main Dashboard Grid (Quvora Numbered Cards) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column (5 Cols) */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Card 1: Security Verdict */}
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
+              <span className="font-bold text-[#64748B] uppercase tracking-wider">
+                CATEGORY: PHYSICAL BOUNDS
+              </span>
+              <span className="font-bold text-[#071842] text-sm">01</span>
+            </div>
+            <ThreatVerdictGauge
+              verdict={verifyData?.verdict}
+              severity={verifyData?.severity}
+              qber={currentQber}
+              e_rob={currentErob}
+              primaryAttackVector={verifyData?.primary_attack_vector}
+              fidelity={verifyData?.fidelity}
+              loading={loading}
+            />
+          </div>
+
+          {/* Card 2: Reason Codes & Diagnostics */}
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
+              <span className="font-bold text-[#64748B] uppercase tracking-wider">
+                CATEGORY: DIAGNOSTIC TELEMETRY
+              </span>
+              <span className="font-bold text-[#071842] text-sm">02</span>
+            </div>
+            <ReasonCodeBadges
+              reasonCodes={verifyData?.reason_codes}
+              diagnosticMessage={verifyData?.diagnostic_message}
+              postselectedShots={verifyData?.postselected_shots}
+              discardedShots={verifyData?.discarded_shots}
+            />
+          </div>
+        </div>
+
+        {/* Right Column (7 Cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Card 3: Bell Measurement Histogram */}
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
+              <span className="font-bold text-[#64748B] uppercase tracking-wider">
+                CATEGORY: BORN-RULE PROJECTIONS
+              </span>
+              <span className="font-bold text-[#071842] text-sm">03</span>
+            </div>
+            <LiveHistogram
+              qber={currentQber}
+              shots={4096}
+              postselectedShots={verifyData?.postselected_shots}
+            />
+          </div>
+
+          {/* Card 4: Quantum Circuit Stage */}
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
+              <span className="font-bold text-[#64748B] uppercase tracking-wider">
+                CATEGORY: OPTICAL HARDWARE CIRCUIT
+              </span>
+              <span className="font-bold text-[#071842] text-sm">04</span>
+            </div>
+            <CircuitVisualizer currentStage={step === 'idle' ? 'keygen' : (step as any)} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Real-Time Stream Telemetry Log Table ── */}
+      <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 text-xs font-mono">
+          <div className="flex items-center space-x-2">
+            <Activity className="w-4 h-4 text-[#20C8A7]" />
+            <span className="font-bold text-[#071842] uppercase tracking-wider">
+              REAL-TIME QUANTUM STREAM TELEMETRY
+            </span>
+          </div>
+          <span className="text-[#64748B]">
+            {telemetryLog.length} Packets Received
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-[#F8FAF9] border-b border-[#CBD5E1] text-[#64748B] uppercase tracking-wider">
+              <tr>
+                <th className="py-2.5 px-3 font-semibold">Timestamp</th>
+                <th className="py-2.5 px-3 font-semibold">Stage</th>
+                <th className="py-2.5 px-3 font-semibold">QBER</th>
+                <th className="py-2.5 px-3 font-semibold">e_rob</th>
+                <th className="py-2.5 px-3 font-semibold">Verdict</th>
+                <th className="py-2.5 px-3 font-semibold">Postselection</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E2E8F0] text-[#334155]">
+              {telemetryLog.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-[#94A3B8]">
+                    No live telemetry stream captured yet. Click &ldquo;Run Full Lifecycle&rdquo; to begin.
+                  </td>
+                </tr>
+              ) : (
+                telemetryLog.slice(0, 8).map((entry, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-2.5 px-3 text-[#64748B]">
+                      {entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString() : 'NOW'}
+                    </td>
+                    <td className="py-2.5 px-3 font-bold text-[#071842] uppercase">{entry.event_type || 'VERIFY'}</td>
+                    <td className="py-2.5 px-3 font-semibold">
+                      {entry.qber !== undefined ? `${(entry.qber * 100).toFixed(2)}%` : '--'}
+                    </td>
+                    <td className="py-2.5 px-3 text-[#475569]">
+                      {entry.hoeffding_threshold !== undefined ? `≤ ${(entry.hoeffding_threshold * 100).toFixed(2)}%` : '6.58%'}
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          entry.active_threat === 'CLEAN'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
+                            : 'bg-rose-50 text-rose-700 border border-rose-300'
+                        }`}
+                      >
+                        {entry.active_threat === 'CLEAN' ? 'SECURE' : (entry.active_threat || 'EVAL')}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-[#64748B]">
+                      {entry.channel_telemetry?.postselected ? `${entry.channel_telemetry.postselected} shots` : '--'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

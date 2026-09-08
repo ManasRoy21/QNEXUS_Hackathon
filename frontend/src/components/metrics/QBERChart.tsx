@@ -28,7 +28,6 @@ export default function QBERChart({
   e_rep = 0.1358,
   e_forg = 0.2058,
 }: QBERChartProps) {
-  // Synthesize realistic default history if empty
   const chartData = useMemo(() => {
     if (history && history.length > 0) return history;
 
@@ -52,86 +51,94 @@ export default function QBERChart({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
         <div>
-          <h3 className="text-xs font-mono font-medium text-slate-400 uppercase tracking-wider">
-            Real-Time QBER vs Hoeffding Security Bounds
+          <h3 className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider">
+            REAL-TIME QBER VS HOEFFDING BOUNDS
           </h3>
-          <p className="text-[11px] text-slate-500 font-mono">
-            Analytical Born-Rule Error Rate vs e_rob (6.58%) & e_rep (13.58%)
+          <p className="text-[11px] text-[#071842] font-mono font-semibold">
+            Born-Rule Error Rate vs e_rob (6.58%) &amp; e_rep (13.58%)
           </p>
         </div>
         <div className="flex items-center space-x-3 text-[10px] font-mono">
-          <span className="flex items-center space-x-1 text-cyan-400">
-            <span className="h-0.5 w-3 bg-cyan-400 inline-block" />
-            <span>QBER Trace</span>
+          <span className="flex items-center space-x-1.5 text-[#071842]">
+            <span className="h-1 w-3 bg-[#071842] inline-block rounded" />
+            <span className="font-bold">QBER Trace</span>
           </span>
-          <span className="flex items-center space-x-1 text-emerald-400">
-            <span className="h-0.5 w-3 bg-emerald-400 inline-block" />
-            <span>e_rob ({(erobVal * 100).toFixed(1)}%)</span>
+          <span className="flex items-center space-x-1.5 text-emerald-600">
+            <span className="h-1 w-3 bg-emerald-500 inline-block rounded" />
+            <span className="font-semibold">e_rob ({(erobVal * 100).toFixed(1)}%)</span>
           </span>
-          <span className="flex items-center space-x-1 text-rose-400">
-            <span className="h-0.5 w-3 bg-rose-400 inline-block" />
-            <span>e_rep ({(erepVal * 100).toFixed(1)}%)</span>
+          <span className="flex items-center space-x-1.5 text-rose-600">
+            <span className="h-1 w-3 bg-rose-500 inline-block rounded" />
+            <span className="font-semibold">e_rep ({(erepVal * 100).toFixed(1)}%)</span>
           </span>
         </div>
       </div>
 
-      <div className="h-60 w-full">
+      <div className="h-64 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-            <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+          <LineChart data={chartData} margin={{ top: 15, right: 25, left: -20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+            <XAxis
+              dataKey="time"
+              stroke="#94A3B8"
+              tick={{ fontSize: 11, fill: '#475569', fontFamily: 'JetBrains Mono' }}
+            />
             <YAxis
-              stroke="#64748b"
-              tick={{ fontSize: 11, fill: '#94a3b8' }}
+              stroke="#94A3B8"
+              tick={{ fontSize: 11, fill: '#475569', fontFamily: 'JetBrains Mono' }}
               domain={[0, Math.max(0.25, (currentQBER || 0) + 0.05)]}
               tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#090d16',
-                borderColor: '#1e293b',
-                borderRadius: '6px',
+                backgroundColor: '#071842',
+                borderColor: '#1D293D',
+                borderRadius: '8px',
+                color: '#FFFFFF',
+                fontFamily: 'JetBrains Mono',
                 fontSize: '12px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
               }}
               formatter={(value: any, name: string) => [
                 `${(Number(value) * 100).toFixed(2)}%`,
                 name === 'qber' ? 'Observed QBER' : name,
               ]}
             />
-            {/* Reference bounds */}
             <ReferenceLine
               y={erobVal}
-              stroke="#10b981"
+              stroke="#10B981"
               strokeDasharray="4 4"
               strokeWidth={1.5}
               label={{
                 value: `e_rob (${(erobVal * 100).toFixed(1)}%)`,
-                fill: '#10b981',
+                fill: '#10B981',
                 fontSize: 10,
                 position: 'right',
+                fontFamily: 'JetBrains Mono',
               }}
             />
             <ReferenceLine
               y={erepVal}
-              stroke="#f43f5e"
+              stroke="#E11D48"
               strokeDasharray="4 4"
               strokeWidth={1.5}
               label={{
                 value: `e_rep (${(erepVal * 100).toFixed(1)}%)`,
-                fill: '#f43f5e',
+                fill: '#E11D48',
                 fontSize: 10,
                 position: 'right',
+                fontFamily: 'JetBrains Mono',
               }}
             />
             <Line
               type="monotone"
               dataKey="qber"
-              stroke="#22d3ee"
+              stroke="#071842"
               strokeWidth={2.5}
-              dot={{ fill: '#22d3ee', r: 4 }}
-              activeDot={{ r: 6, fill: '#67e8f9' }}
+              dot={{ fill: '#071842', r: 4 }}
+              activeDot={{ r: 6, fill: '#20C8A7' }}
             />
           </LineChart>
         </ResponsiveContainer>
