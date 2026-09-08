@@ -18,6 +18,8 @@ export default function DashboardPage() {
     step,
     loading,
     error,
+    keygenData,
+    signData,
     verifyData,
     runFullLifecycle,
     runKeygen,
@@ -145,7 +147,7 @@ export default function DashboardPage() {
 
             <button
               onClick={() => runSign('QDS-DEFENSE-CONTRACT-VALIDATION')}
-              disabled={loading || step === 'idle'}
+              disabled={loading || !sessionId}
               className="px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors disabled:opacity-50"
               title="Sign message"
             >
@@ -155,7 +157,7 @@ export default function DashboardPage() {
 
             <button
               onClick={() => runVerify(verifierId)}
-              disabled={loading || (step !== 'sign' && step !== 'attack' && step !== 'symmetrize')}
+              disabled={loading || !signData}
               className="px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors disabled:opacity-50"
               title="Verify signature"
             >

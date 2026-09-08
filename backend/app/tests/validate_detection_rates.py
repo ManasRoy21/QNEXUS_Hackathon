@@ -13,9 +13,16 @@ Architecture:
   attack counts, eliminating the O(N_keys × N_trials) QBER inner-loop bottleneck.
 """
 
+import sys
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# Ensure backend root is always in sys.path
+backend_root = Path(__file__).resolve().parent.parent.parent
+if str(backend_root) not in sys.path:
+    sys.path.insert(0, str(backend_root))
 
 from app.engine.protocol.qds_protocol import QDSProtocolEngine
 from app.engine.threats.attack_simulator import AttackConfig, AttackSimulator, AttackType

@@ -12,8 +12,15 @@ Validates:
      - Scenario D: End-to-End 6-Vector Regression with Postselection Active (100% Detection Rate).
 """
 
+import sys
 import time
+from pathlib import Path
 from typing import Any, Dict, List
+
+# Ensure backend root is always in sys.path
+backend_root = Path(__file__).resolve().parent.parent.parent
+if str(backend_root) not in sys.path:
+    sys.path.insert(0, str(backend_root))
 
 from app.engine.protocol.qds_protocol import QDSProtocolEngine, QDSSignatureBlock
 from app.engine.protocol.symmetrization import SymmetrizationGuard

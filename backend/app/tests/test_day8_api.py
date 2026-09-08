@@ -9,8 +9,16 @@ Tests 4 end-to-end integration workflows using FastAPI TestClient:
 Asserts execution completes in under 2.0s with structured ASCII output.
 """
 
+import sys
 import time
+from pathlib import Path
 from typing import Any, Dict
+
+# Ensure backend root is always in sys.path
+backend_root = Path(__file__).resolve().parent.parent.parent
+if str(backend_root) not in sys.path:
+    sys.path.insert(0, str(backend_root))
+
 from fastapi.testclient import TestClient
 
 from main import app

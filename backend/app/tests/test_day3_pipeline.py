@@ -8,7 +8,15 @@ Executes comprehensive end-to-end evaluations of 5 distinct operational scenario
 - Scenario E: Replay Attack (Stale Timestamp & Duplicate Nonce)
 """
 
+import sys
 import time
+from pathlib import Path
+
+# Ensure backend root is always in sys.path
+backend_root = Path(__file__).resolve().parent.parent.parent
+if str(backend_root) not in sys.path:
+    sys.path.insert(0, str(backend_root))
+
 from app.engine.protocol.qds_protocol import QDSProtocolEngine
 from app.engine.threats.channel_noise import AdversaryChannel
 from app.engine.threats.threat_detector import (

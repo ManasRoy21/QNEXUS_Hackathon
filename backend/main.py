@@ -1,6 +1,7 @@
 """FastAPI Application Entrypoint for QDS Threat Detection Engine."""
 
 from contextlib import asynccontextmanager
+import time
 from typing import Optional
 import qiskit
 from fastapi import FastAPI, WebSocket
@@ -10,6 +11,7 @@ from app.api.v1.endpoints.metrics import stream_metrics
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.engine.threats.attack_simulator import AttackType
+from app.services.simulation_service import simulation_service
 
 
 @asynccontextmanager
@@ -59,8 +61,11 @@ def health_check():
     """GET /health - Verifies backend readiness, Qiskit version, and registered attack classes."""
     return {
         "status": "healthy",
+        "service": "QDS Threat Detection Engine",
         "engine": "QDS Threat Detection Engine",
         "version": "1.0.0",
+        "active_sessions": len(simulation_service._sessions),
+        "timestamp": time.time(),
         "qiskit_version": qiskit.__version__,
         "registered_attack_classes": [a.value for a in AttackType if a != AttackType.CLEAN],
         "zero_ml": True,

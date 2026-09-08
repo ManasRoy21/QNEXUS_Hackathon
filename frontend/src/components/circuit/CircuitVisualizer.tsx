@@ -7,8 +7,19 @@ interface CircuitVisualizerProps {
 }
 
 export default function CircuitVisualizer({ currentStage = 'keygen' }: CircuitVisualizerProps) {
-  const [activeTab, setActiveTab] = useState<'keygen' | 'sign' | 'verify'>('keygen');
-  const stage = currentStage === 'attack' ? 'sign' : currentStage || activeTab;
+  const [selectedTab, setSelectedTab] = useState<'keygen' | 'sign' | 'verify' | null>(null);
+
+  // Reset manual selection when currentStage prop changes from parent
+  const prevStageRef = React.useRef(currentStage);
+  React.useEffect(() => {
+    if (currentStage !== prevStageRef.current) {
+      prevStageRef.current = currentStage;
+      setSelectedTab(null);
+    }
+  }, [currentStage]);
+
+  const defaultStage = currentStage === 'attack' ? 'sign' : currentStage;
+  const stage = selectedTab ?? defaultStage;
 
   return (
     <div className="space-y-3">
@@ -20,7 +31,7 @@ export default function CircuitVisualizer({ currentStage = 'keygen' }: CircuitVi
           {(['keygen', 'sign', 'verify'] as const).map((t) => (
             <button
               key={t}
-              onClick={() => setActiveTab(t)}
+              onClick={() => setSelectedTab(t)}
               className={`px-2.5 py-1 text-[10px] rounded uppercase font-semibold transition-all ${
                 stage === t
                   ? 'btn-dark shadow-xs'

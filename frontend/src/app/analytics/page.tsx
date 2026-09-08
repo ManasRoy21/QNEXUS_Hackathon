@@ -86,7 +86,9 @@ export default function AnalyticsPage() {
   const totalVerifications = metrics?.total_verifications ?? 0;
   const threatsBlocked = metrics?.threats_detected ?? 0;
   const cleanRuns = metrics?.clean_runs ?? 0;
-  const detectionRate = metrics?.detection_rate != null ? (metrics.detection_rate * 100).toFixed(1) : '100.0';
+  const detectionRate = metrics?.detection_rate != null
+    ? (metrics.detection_rate > 1 ? metrics.detection_rate : metrics.detection_rate * 100).toFixed(1)
+    : '100.0';
   const falseAlarmRate = '0.00';
   const avgQber = metrics?.average_qber != null ? (metrics.average_qber * 100).toFixed(2) : '0.85';
 
