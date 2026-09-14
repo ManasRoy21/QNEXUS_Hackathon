@@ -1,233 +1,264 @@
 'use client';
 
 import React, { useState } from 'react';
-import AttackTogglePanel, { ATTACKS } from '@/components/attack/AttackTogglePanel';
-import SensitivitySlider from '@/components/attack/SensitivitySlider';
-import ThreatVerdictGauge from '@/components/dashboard/ThreatVerdictGauge';
-import ReasonCodeBadges from '@/components/dashboard/ReasonCodeBadges';
-import { useSimulation } from '@/hooks/useSimulation';
-import { AttackType } from '@/types';
-import { Zap, ShieldCheck, Play, ArrowRight, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import {
+  Zap,
+  ShieldAlert,
+  ShieldCheck,
+  Play,
+  RotateCcw,
+  CheckCircle2,
+  XCircle,
+  HelpCircle,
+  Cpu,
+  Info,
+} from 'lucide-react';
+import SimulatedBadge from '@/components/common/SimulatedBadge';
+import { phase2Api } from '@/services/phase2Api';
+import { SessionState } from '@/types/phase2';
 
 export default function AttacksPage() {
-  const [selectedAttack, setSelectedAttack] = useState<AttackType | null>('INTERCEPT_RESEND');
-  const [intensity, setIntensity] = useState<number>(0.45);
-  const [spoofedKey, setSpoofedKey] = useState<string>('mallory-unauthorized-key-0xDEADBEEF');
-  const [replayAge, setReplayAge] = useState<number>(300);
-  const [asymmetryRate, setAsymmetryRate] = useState<number>(0.4);
-  const [pathBias, setPathBias] = useState<number>(0.45);
-  const [targetVerifier, setTargetVerifier] = useState<'bob' | 'charlie'>('charlie');
+  const [selectedProtocol, setSelectedProtocol] = useState<string>('practical_qds');
+  const [selectedAttack, setSelectedAttack] = useState<string>('FORGERY');
+  const [intensity, setIntensity] = useState<number>(1.0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [sessionState, setSessionState] = useState<SessionState | null>(null);
 
-  const {
-    sessionId,
-    loading,
-    error,
-    attackData,
-    symmetrizeData,
-    verifyData,
-    runKeygen,
-    runSign,
-    runAttack,
-    runSymmetrize,
-    runVerify,
-  } = useSimulation();
+  const attacksList = [
+    {
+      id: 'FORGERY',
+      name: 'Signature Forgery Attempt (FR-E1)',
+      targetProperty: 'Unforgeability',
+      description:
+        'Adversary attempts to fabricate signature tokens without holding genuine private quantum key material. Bob and Charlie test disagreement against e_forg.',
+      expectedOutcome: 'REJECT_FORGERY',
+      severity: 'HIGH',
+    },
+    {
+      id: 'REPUDIATION',
+      name: 'Dishonest Alice Repudiation (FR-E2)',
+      targetProperty: 'Non-Repudiation',
+      description:
+        'Alice attempts to deny a previously issued signature. Tripartite cross-verification between Bob and Charlie definitively contradicts Alice.',
+      expectedOutcome: 'REPUDIATION_BLOCKED',
+      severity: 'CRITICAL',
+    },
+    {
+      id: 'EAVESDROPPING',
+      name: 'Channel Eavesdropping / Intercept-Resend (FR-E3)',
+      targetProperty: 'Secrecy / Integrity',
+      description:
+        'Eve intercepts optical transit line in non-aligned Pauli bases, injecting 25-40% QBER. Practical QDS aborts session before signature validity.',
+      expectedOutcome: 'SESSION_ABORTED',
+      severity: 'CRITICAL',
+    },
+    {
+      id: 'DETECTOR_COMPROMISE',
+      name: 'Detector Blinding / Side-Channel (FR-E3)',
+      targetProperty: 'Device Independence',
+      description:
+        'Laser blinding injected into measurement apparatus. MDI-QDS remains 100% secure, while non-MDI protocols suffer key leakage.',
+      expectedOutcome: 'SECURE_IMMUNE (MDI-QDS)',
+      severity: 'CRITICAL',
+    },
+    {
+      id: 'PNS_ATTACK',
+      name: 'Photon Number Splitting (PNS) Attack (FR-B3)',
+      targetProperty: 'Multi-Photon Defense',
+      description:
+        'Eve siphons single photons from coherent pulses. Decoy-State QDS monitors mu/nu/omega yield ratios and flags PNS intrusion.',
+      expectedOutcome: 'REJECT_PNS_BREACH (Decoy QDS)',
+      severity: 'HIGH',
+    },
+  ];
 
-  const handleFullAttackWorkflow = async () => {
-    if (!selectedAttack) return;
+  const handleExecuteAttack = async () => {
     try {
-      await runKeygen(16);
-      await runSign('QDS-DEFENSE-ATTACK-TEST');
-      await runAttack(selectedAttack, intensity, {
-        spoofed_public_key: spoofedKey,
-        replay_age_seconds: replayAge,
-        asymmetry_rate: asymmetryRate,
-        path_bias_intensity: pathBias,
-        target_verifier: targetVerifier,
+      setLoading(true);
+      // 1. Create fresh session with selected protocol
+      const sess = await phase2Api.createSession({
+        protocol_id: selectedProtocol,
+        distance_km: 30.0,
       });
-      await runVerify(selectedAttack === 'REPUDIATION' ? 'both' : targetVerifier);
+      // 2. Run attack simulation
+      const result = await phase2Api.simulateAttack(
+        sess.session_id,
+        selectedAttack,
+        intensity,
+        'Bob'
+      );
+      setSessionState(result);
     } catch (err) {
-      console.error('Attack workflow error:', err);
+      console.error('Attack execution failed:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSymmetrizeAndVerify = async () => {
-    try {
-      await runSymmetrize(0.5);
-      await runVerify('both');
-    } catch (err) {
-      console.error('Symmetrize error:', err);
-    }
-  };
-
-  const selectedMeta = ATTACKS.find((a) => a.id === selectedAttack);
+  const currentMeta = attacksList.find((a) => a.id === selectedAttack) || attacksList[0];
+  const atk = sessionState?.last_attack;
 
   return (
     <div className="space-y-8">
-      {/* ── Top Header Banner ── */}
+      {/* ── Header Banner ── */}
       <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-6">
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
               <span className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider">
-                THREAT INJECTION SUITE
+                MODULE E: ATTACK SIMULATION CONSOLE
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-semibold">
-                ACTIVE PERTURBATION
-              </span>
+              <SimulatedBadge size="sm" />
             </div>
             <h1 className="font-serif text-3xl sm:text-4xl text-[#071842] tracking-tight">
-              Quantum Threat Injection &amp; Stress Suite
+              Quantum &amp; Classical Adversary Suite
             </h1>
             <p className="text-xs sm:text-sm text-[#475569] font-sans max-w-2xl">
-              Inject eavesdropping, forgery, impersonation, replay, repudiation, or side-channel laser blinding directly into the transit fiber.
+              Execute active forgery, repudiation, eavesdropping, and detector blinding attacks against
+              running protocol instances to verify mathematical security guarantees (FR-E1, FR-E2, FR-E3).
             </p>
           </div>
 
-          {/* Quick Action Button */}
-          <div>
-            <button
-              onClick={handleFullAttackWorkflow}
-              disabled={loading || !selectedAttack}
-              className="btn-dark px-6 py-3 rounded-lg text-xs font-mono font-semibold inline-flex items-center space-x-2 shadow-sm disabled:opacity-50"
-            >
-              <Zap className="w-4 h-4 text-[#20C8A7]" />
-              <span>{loading ? 'Injecting & Evaluating...' : 'Inject Threat Vector & Evaluate'}</span>
-            </button>
-          </div>
+          <button
+            onClick={handleExecuteAttack}
+            disabled={loading}
+            className="px-6 py-3 rounded-lg bg-[#071842] hover:bg-[#0c2464] text-white font-mono text-xs font-semibold transition-all shadow-md flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+          >
+            <Zap className="w-4 h-4 text-[#20C8A7]" />
+            <span>{loading ? 'Simulating Adversary...' : 'Launch Attack Vector'}</span>
+          </button>
         </div>
 
-        {/* Selected Threat Summary Bar */}
-        {selectedMeta && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-[#F8FAF9] rounded-xl border border-[#CBD5E1] text-xs font-mono">
-            <div className="flex items-center space-x-2">
-              <span className="font-bold text-[#071842]">TARGET:</span>
-              <span className="font-bold text-[#263EDC]">{selectedMeta.label}</span>
-              <span className="text-[#94A3B8]">·</span>
-              <span className="text-[#64748B] font-sans">{selectedMeta.tag}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-[#64748B]">EXPECTED BREACH:</span>
-              <span className="font-bold text-rose-600 bg-white px-2 py-0.5 rounded border border-[#E2E8F0]">
-                {selectedMeta.targetBound}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="p-3 bg-rose-50 border border-rose-300 rounded-lg text-xs font-mono text-rose-700">
-            <strong>ERROR:</strong> {error}
-          </div>
-        )}
+        {/* Protocol Selector for Attack Testing */}
+        <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
+          <span className="text-[#64748B] font-bold uppercase">Target Protocol:</span>
+          {[
+            { id: 'practical_qds', label: 'Practical QDS' },
+            { id: 'mdi_qds', label: 'MDI-QDS (Detector Immune)' },
+            { id: 'otuh_qds', label: 'OTUH-QDS (Universal Hash)' },
+            { id: 'decoy_qds', label: 'Decoy-State QDS' },
+          ].map((proto) => (
+            <button
+              key={proto.id}
+              onClick={() => setSelectedProtocol(proto.id)}
+              className={`px-3 py-1.5 rounded-lg border font-semibold transition-all ${
+                selectedProtocol === proto.id
+                  ? 'bg-[#071842] text-white border-[#071842] shadow-xs'
+                  : 'bg-[#F8FAF9] text-[#475569] border-[#CBD5E1] hover:bg-slate-100'
+              }`}
+            >
+              {proto.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── Main Workspace Grid ── */}
+      {/* ── Attack Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 Cols): Threat Vector Selector & Slider */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
-              <span className="font-bold text-[#64748B] uppercase tracking-wider">
-                CATEGORY: ADVERSARY PROFILE
-              </span>
-              <span className="font-bold text-[#071842] text-sm">01</span>
-            </div>
-            <AttackTogglePanel
-              selectedAttack={selectedAttack}
-              onSelect={(atk) => setSelectedAttack(atk)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
-              <span className="font-bold text-[#64748B] uppercase tracking-wider">
-                CATEGORY: PHYSICAL CHANNEL PARAMETERS
-              </span>
-              <span className="font-bold text-[#071842] text-sm">02</span>
-            </div>
-            <SensitivitySlider
-              intensity={intensity}
-              onChange={setIntensity}
-              selectedAttack={selectedAttack}
-              spoofedKey={spoofedKey}
-              onSpoofedKeyChange={setSpoofedKey}
-              replayAge={replayAge}
-              onReplayAgeChange={setReplayAge}
-              asymmetryRate={asymmetryRate}
-              onAsymmetryRateChange={setAsymmetryRate}
-              pathBias={pathBias}
-              onPathBiasChange={setPathBias}
-              targetVerifier={targetVerifier}
-              onTargetVerifierChange={setTargetVerifier}
-              disabled={loading}
-            />
-          </div>
+        {/* Left Column: Attack Classes */}
+        <div className="lg:col-span-5 space-y-3">
+          <span className="text-xs font-mono font-bold text-[#64748B] uppercase block">
+            Select Threat Class:
+          </span>
+          {attacksList.map((item) => {
+            const isSelected = selectedAttack === item.id;
+            return (
+              <div
+                key={item.id}
+                onClick={() => setSelectedAttack(item.id)}
+                className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                  isSelected
+                    ? 'border-[#20C8A7] bg-[#E6FBF7]/30 shadow-xs ring-1 ring-[#20C8A7]'
+                    : 'border-[#E2E8F0] hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-mono font-bold text-[#071842]">
+                    {item.name}
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                    {item.targetProperty}
+                  </span>
+                </div>
+                <p className="text-xs text-[#475569] line-clamp-2">
+                  {item.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Right Column (5 Cols): Verdict, Diagnostics, & Module G Guard */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Card 3: Live Threat Verdict */}
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
-              <span className="font-bold text-[#64748B] uppercase tracking-wider">
-                CATEGORY: DETECTED VERDICT
-              </span>
-              <span className="font-bold text-[#071842] text-sm">03</span>
-            </div>
-            <ThreatVerdictGauge
-              verdict={verifyData?.verdict}
-              severity={verifyData?.severity}
-              qber={verifyData?.qber}
-              e_rob={verifyData?.e_rob}
-              primaryAttackVector={verifyData?.primary_attack_vector || selectedAttack}
-              fidelity={verifyData?.fidelity}
-              loading={loading}
-            />
-          </div>
-
-          {/* Card 4: Reason Codes */}
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4 text-xs font-mono">
-              <span className="font-bold text-[#64748B] uppercase tracking-wider">
-                CATEGORY: BREACH CODES
-              </span>
-              <span className="font-bold text-[#071842] text-sm">04</span>
-            </div>
-            <ReasonCodeBadges
-              reasonCodes={verifyData?.reason_codes}
-              diagnosticMessage={verifyData?.diagnostic_message}
-              postselectedShots={verifyData?.postselected_shots}
-              discardedShots={verifyData?.discarded_shots}
-            />
-          </div>
-
-          {/* Card 5: Module G Symmetrization Guard Action Banner */}
-          <div className="bg-[#071842] text-white rounded-2xl p-6 border border-[#0B1E4E] shadow-sm space-y-4">
-            <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-[#20C8A7]" />
-              <h3 className="font-serif text-lg text-white font-bold">
-                Module G Symmetrization Guard
-              </h3>
-            </div>
-            <p className="text-xs text-[#94A3B8] font-sans leading-relaxed">
-              When dishonest Alice attempts repudiation by distributing mismatched quantum states to Bob vs Charlie, execute an encrypted 50% swap. This distributes asymmetry equally and guarantees simultaneous rejection.
-            </p>
-            <button
-              onClick={handleSymmetrizeAndVerify}
-              disabled={loading}
-              className="btn-teal w-full py-2.5 rounded-lg text-xs font-mono font-bold inline-flex items-center justify-center space-x-2 shadow-xs disabled:opacity-50"
-            >
-              <span>Apply Symmetrization &amp; Cross-Verify</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            {symmetrizeData && (
-              <div className="p-3 bg-[#0B1E4E] rounded-lg border border-[#1D293D] text-[11px] font-mono text-[#CBD5E1]">
-                <span className="text-[#20C8A7] font-bold block">GUARD ENGAGED:</span>
-                Swapped {symmetrizeData.swap_count} register indices between Bob &amp; Charlie.
+        {/* Right Column: Execution Parameters & Live Verdict Card */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Selected Attack Details */}
+          <div className="bg-[#F8FAF9] border border-[#E2E8F0] rounded-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+              <div>
+                <h3 className="font-serif text-lg font-bold text-[#071842]">
+                  {currentMeta.name}
+                </h3>
+                <span className="text-xs font-mono text-[#64748B]">
+                  Guaranteed Security Property: <strong>{currentMeta.targetProperty}</strong>
+                </span>
               </div>
-            )}
+              <SimulatedBadge size="sm" />
+            </div>
+
+            <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
+              {currentMeta.description}
+            </p>
+
+            <div className="p-3 bg-white border border-[#CBD5E1] rounded-xl flex items-center justify-between text-xs font-mono">
+              <span className="text-[#64748B]">Expected Protocol Response:</span>
+              <span className="font-bold text-[#071842]">{currentMeta.expectedOutcome}</span>
+            </div>
           </div>
+
+          {/* Attack Evaluation Outcome */}
+          {atk ? (
+            <div
+              className={`p-6 rounded-2xl border space-y-4 shadow-xs animate-in fade-in duration-200 ${
+                atk.protocol_resisted
+                  ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950'
+                  : 'bg-rose-50/70 border-rose-300 text-rose-950'
+              }`}
+            >
+              <div className="flex items-center justify-between border-b border-black/10 pb-3">
+                <div className="flex items-center space-x-2 font-mono text-sm font-bold">
+                  {atk.protocol_resisted ? (
+                    <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                  ) : (
+                    <ShieldAlert className="w-5 h-5 text-rose-700" />
+                  )}
+                  <span>ATTACK VERDICT: {atk.verdict}</span>
+                </div>
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/80 border border-black/10">
+                  {atk.reason_code}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-xs font-mono">
+                <div>
+                  <strong>Adversarial Perturbation:</strong> {atk.attack_type} against {sessionState?.protocol_name}
+                </div>
+                <div>
+                  <strong>Bob Verdict:</strong> {atk.resulting_verdict_bob} | <strong>Charlie Verdict:</strong> {atk.resulting_verdict_charlie}
+                </div>
+                <div>
+                  <strong>Resulting QBER:</strong> {(atk.resulting_qber * 100).toFixed(2)}%
+                </div>
+              </div>
+
+              <div className="p-4 bg-white/90 border border-black/10 rounded-xl text-xs sm:text-sm font-sans leading-relaxed text-[#071842]">
+                <strong>Physical &amp; Cryptographic Explanation:</strong><br />
+                {atk.explanation}
+              </div>
+            </div>
+          ) : (
+            <div className="p-12 text-center border border-dashed border-slate-300 rounded-2xl text-xs font-mono text-[#64748B] bg-white">
+              Select an attack vector and click <strong>&quot;Launch Attack Vector&quot;</strong> to observe protocol defense.
+            </div>
+          )}
         </div>
       </div>
     </div>

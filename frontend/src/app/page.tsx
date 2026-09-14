@@ -40,22 +40,22 @@ export default function HomePage() {
               href="/dashboard"
               className="btn-dark px-6 py-3 rounded-lg text-sm font-semibold inline-flex items-center space-x-2 shadow-md"
             >
-              <span>Launch Operations Console</span>
+              <span>3-Pane Console (Alice/Bob/Charlie)</span>
               <ArrowRight className="w-4 h-4 text-[#20C8A7]" />
+            </Link>
+            <Link
+              href="/benchmarks"
+              className="px-6 py-3 rounded-lg text-sm font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors inline-flex items-center space-x-2"
+            >
+              <span>Protocol Benchmarks &amp; Sweeps</span>
+              <Activity className="w-4 h-4 text-[#20C8A7]" />
             </Link>
             <Link
               href="/attacks"
               className="px-6 py-3 rounded-lg text-sm font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors inline-flex items-center space-x-2"
             >
-              <span>Inject Attack Vectors</span>
-              <Zap className="w-4 h-4 text-[#20C8A7]" />
-            </Link>
-            <Link
-              href="/analytics"
-              className="px-6 py-3 rounded-lg text-sm font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors inline-flex items-center space-x-2"
-            >
-              <span>Statistical Analytics</span>
-              <Activity className="w-4 h-4 text-[#263EDC]" />
+              <span>Attack Simulation Suite</span>
+              <Zap className="w-4 h-4 text-[#263EDC]" />
             </Link>
           </div>
         </div>

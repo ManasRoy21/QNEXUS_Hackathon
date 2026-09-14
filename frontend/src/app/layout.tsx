@@ -22,17 +22,19 @@ export default function RootLayout({
             <div className="flex items-center space-x-3">
               <span className="inline-flex items-center space-x-1.5 text-[#20C8A7]">
                 <span className="h-2 w-2 rounded-full bg-[#20C8A7] animate-pulse"></span>
-                <span className="font-semibold uppercase tracking-wider">ITS CERTIFIED</span>
+                <span className="font-semibold uppercase tracking-wider">PHASE 2 PLATFORM</span>
               </span>
               <span className="hidden md:inline text-[#94A3B8]">|</span>
               <span className="hidden md:inline text-[#94A3B8]">
-                Deterministic Zero-AI/ML Detection Engine
+                Quantum Digital Signature Simulation &amp; Benchmarking Engine
               </span>
             </div>
             <div className="flex items-center space-x-4 text-[#94A3B8]">
-              <span className="hidden sm:inline">Verification Latency: <strong className="text-white font-mono">1.50ms</strong></span>
+              <span className="hidden sm:inline bg-[#E6FBF7]/20 text-[#20C8A7] px-2 py-0.5 rounded border border-[#20C8A7]/40 font-mono font-bold">
+                SIMULATED QUANTUM RUNS
+              </span>
               <span className="hidden sm:inline">·</span>
-              <span>Empirical Detection: <strong className="text-[#20C8A7] font-mono">100.0%</strong></span>
+              <span>Baseline: <strong className="text-white font-mono">Practical QDS / MDI / OTUH</strong></span>
             </div>
           </div>
         </div>
@@ -52,11 +54,11 @@ export default function RootLayout({
                       QDS
                     </span>
                     <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-[#F1F5F9] border border-[#CBD5E1] text-[#071842] font-semibold">
-                      THREAT ENGINE
+                      PHASE 2 ENGINE
                     </span>
                   </div>
                   <p className="text-[10px] font-mono text-[#64748B] hidden sm:block tracking-wide uppercase">
-                    Quantum Digital Signatures
+                    Protocol Simulation &amp; Verification
                   </p>
                 </div>
               </Link>
@@ -74,19 +76,25 @@ export default function RootLayout({
                 href="/dashboard"
                 className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
               >
-                Operations Console
+                3-Pane Console
               </Link>
               <Link
                 href="/attacks"
                 className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
               >
-                Attack Injection
+                Attack Suite
+              </Link>
+              <Link
+                href="/benchmarks"
+                className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
+              >
+                Benchmarks &amp; Sweeps
               </Link>
               <Link
                 href="/analytics"
                 className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
               >
-                Hoeffding Analytics
+                Hoeffding Bounds
               </Link>
             </nav>
 
