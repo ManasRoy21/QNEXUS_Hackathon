@@ -1,7 +1,6 @@
-'use client';
-
 import React from 'react';
 import { AttackType } from '@/types';
+import ResetButton from '../common/ResetButton';
 
 export interface AttackInfo {
   id: AttackType;
@@ -88,13 +87,14 @@ export default function AttackTogglePanel({
           SELECT THREAT VECTOR (6 CLASSES)
         </h3>
         {selectedAttack && (
-          <button
-            onClick={() => onSelect(null)}
-            className="text-[11px] font-semibold text-[#071842] hover:text-[#263EDC] underline"
+          <ResetButton
+            size="xs"
+            variant="subtle"
+            label="Reset Threat Vector"
             disabled={disabled}
-          >
-            Clear Selection
-          </button>
+            onReset={() => onSelect(null)}
+            title="Clear active adversarial threat selection"
+          />
         )}
       </div>
 

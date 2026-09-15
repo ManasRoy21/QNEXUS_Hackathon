@@ -15,6 +15,7 @@ import {
   Lock,
 } from 'lucide-react';
 import SimulatedBadge from '../common/SimulatedBadge';
+import ResetButton from '../common/ResetButton';
 
 interface RoleConsolesProps {
   session: SessionState | null;
@@ -26,6 +27,8 @@ interface RoleConsolesProps {
   onVerifyCharlie: () => Promise<void>;
 }
 
+const DEFAULT_MESSAGE = 'Certified Quantum Sovereign Bond Issuance #9042: 100,000,000 USD';
+
 export default function RoleConsoles({
   session,
   loading,
@@ -36,9 +39,7 @@ export default function RoleConsoles({
   onVerifyCharlie,
 }: RoleConsolesProps) {
   const [activeRole, setActiveRole] = useState<'all' | 'alice' | 'bob' | 'charlie'>('all');
-  const [messageText, setMessageText] = useState<string>(
-    'Certified Quantum Sovereign Bond Issuance #9042: 100,000,000 USD'
-  );
+  const [messageText, setMessageText] = useState<string>(DEFAULT_MESSAGE);
   const [largeDocKb, setLargeDocKb] = useState<number | undefined>(undefined);
 
   const km = session?.key_material;
@@ -148,9 +149,23 @@ export default function RoleConsoles({
 
               {/* Step 2: Message Input & Large Document Demo */}
               <div className="space-y-2">
-                <label className="text-xs font-mono font-bold text-[#475569] block">
-                  2. Document / Message to Sign
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-mono font-bold text-[#475569]">
+                    2. Document / Message to Sign
+                  </label>
+                  {(messageText !== DEFAULT_MESSAGE || largeDocKb !== undefined) && (
+                    <ResetButton
+                      size="xs"
+                      variant="ghost"
+                      label="Reset Text"
+                      onReset={() => {
+                        setMessageText(DEFAULT_MESSAGE);
+                        setLargeDocKb(undefined);
+                      }}
+                      title="Reset document text to default"
+                    />
+                  )}
+                </div>
                 <textarea
                   rows={3}
                   value={messageText}

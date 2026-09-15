@@ -22,19 +22,36 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import SimulatedBadge from '@/components/common/SimulatedBadge';
+import ResetButton from '@/components/common/ResetButton';
 import { phase2Api } from '@/services/phase2Api';
 import { BenchmarkSweepResponse } from '@/types/phase2';
+
+const DEFAULT_PROTOCOLS = ['practical_qds', 'mdi_qds', 'otuh_qds', 'tf_qds'];
+const DEFAULT_MESSAGE_SIZE = 1024;
 
 export default function BenchmarksPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [sweepData, setSweepData] = useState<BenchmarkSweepResponse | null>(null);
-  const [selectedProtocols, setSelectedProtocols] = useState<string[]>([
-    'practical_qds',
-    'mdi_qds',
-    'otuh_qds',
-    'tf_qds',
-  ]);
-  const [messageSize, setMessageSize] = useState<number>(1024);
+  const [selectedProtocols, setSelectedProtocols] = useState<string[]>(DEFAULT_PROTOCOLS);
+  const [messageSize, setMessageSize] = useState<number>(DEFAULT_MESSAGE_SIZE);
+
+  const handleResetDefaults = React.useCallback(async () => {
+    setSelectedProtocols(DEFAULT_PROTOCOLS);
+    setMessageSize(DEFAULT_MESSAGE_SIZE);
+    try {
+      setLoading(true);
+      const res = await phase2Api.runSweep(
+        DEFAULT_PROTOCOLS,
+        [10, 30, 60, 90, 120, 150],
+        DEFAULT_MESSAGE_SIZE
+      );
+      setSweepData(res);
+    } catch (err) {
+      console.error('Sweep reset failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleRunSweep = React.useCallback(async () => {
     try {
@@ -107,6 +124,14 @@ export default function BenchmarksPage() {
 
           {/* Export Actions (FR-F3) */}
           <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+            <ResetButton
+              label="Reset Sweep"
+              size="md"
+              variant="outline"
+              disabled={loading}
+              onReset={handleResetDefaults}
+              title="Reset selected protocols and parameters to defaults"
+            />
             <a
               href={phase2Api.getExportCsvUrl()}
               download
@@ -150,15 +175,25 @@ export default function BenchmarksPage() {
             })}
           </div>
 
-          {/* Sweep Execution Button */}
-          <button
-            onClick={handleRunSweep}
-            disabled={loading || selectedProtocols.length === 0}
-            className="px-5 py-2.5 rounded-lg bg-[#20C8A7] hover:bg-[#1bb395] text-[#071842] font-mono text-xs font-bold transition-all shadow-md flex items-center space-x-2 cursor-pointer disabled:opacity-50"
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>{loading ? 'Running Sweep...' : 'Execute Sweep'}</span>
-          </button>
+          {/* Sweep Execution & Reset Actions */}
+          <div className="flex items-center space-x-2">
+            <ResetButton
+              label="Reset Defaults"
+              size="md"
+              variant="outline"
+              disabled={loading || (selectedProtocols.length === DEFAULT_PROTOCOLS.length && DEFAULT_PROTOCOLS.every((p) => selectedProtocols.includes(p)) && messageSize === DEFAULT_MESSAGE_SIZE)}
+              onReset={handleResetDefaults}
+              title="Reset protocol selection and message size to defaults"
+            />
+            <button
+              onClick={handleRunSweep}
+              disabled={loading || selectedProtocols.length === 0}
+              className="px-5 py-2.5 rounded-lg bg-[#20C8A7] hover:bg-[#1bb395] text-[#071842] font-mono text-xs font-bold transition-all shadow-md flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>{loading ? 'Running Sweep...' : 'Execute Sweep'}</span>
+            </button>
+          </div>
         </div>
       </div>
 

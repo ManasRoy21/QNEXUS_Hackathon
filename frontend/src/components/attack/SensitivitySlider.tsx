@@ -1,7 +1,6 @@
-'use client';
-
 import React from 'react';
 import { AttackType } from '@/types';
+import ResetButton from '../common/ResetButton';
 
 interface SensitivitySliderProps {
   intensity: number;
@@ -41,9 +40,26 @@ export default function SensitivitySlider({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 text-xs font-mono">
-        <h3 className="font-bold text-[#64748B] uppercase tracking-wider">
-          PERTURBATION PARAMETERS
-        </h3>
+        <div className="flex items-center space-x-2">
+          <h3 className="font-bold text-[#64748B] uppercase tracking-wider">
+            PERTURBATION PARAMETERS
+          </h3>
+          <ResetButton
+            size="xs"
+            variant="ghost"
+            label="Reset"
+            disabled={disabled}
+            onReset={() => {
+              onChange(0.45);
+              onReplayAgeChange?.(300);
+              onAsymmetryRateChange?.(0.4);
+              onPathBiasChange?.(0.45);
+              onTargetVerifierChange?.('charlie');
+              onSpoofedKeyChange?.('mallory-unauthorized-key-0xDEADBEEF');
+            }}
+            title="Reset all perturbation parameters to defaults"
+          />
+        </div>
         <span className="font-bold text-[#071842] bg-[#F1F5F9] px-2.5 py-0.5 rounded border border-[#CBD5E1]">
           Intensity: {intensityPct}%
         </span>

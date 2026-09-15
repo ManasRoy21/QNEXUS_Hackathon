@@ -6,6 +6,7 @@ import QBERChart from '@/components/metrics/QBERChart';
 import { qdsApi } from '@/services/api';
 import { MetricsResponse } from '@/types';
 import { RefreshCw, BarChart2, ShieldCheck, Activity, BookOpen, Layers } from 'lucide-react';
+import ResetButton from '@/components/common/ResetButton';
 
 function StatCard({
   index,
@@ -83,6 +84,12 @@ export default function AnalyticsPage() {
     loadMetrics();
   }, [loadMetrics]);
 
+  const handleResetView = () => {
+    setError(null);
+    setChartKey((k) => k + 1);
+    loadMetrics();
+  };
+
   const totalVerifications = metrics?.total_verifications ?? 0;
   const threatsBlocked = metrics?.threats_detected ?? 0;
   const cleanRuns = metrics?.clean_runs ?? 0;
@@ -114,7 +121,15 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <ResetButton
+              label="Reset View"
+              size="md"
+              variant="outline"
+              disabled={loading}
+              onReset={handleResetView}
+              title="Reset chart bounds and reload metrics"
+            />
             <button
               onClick={loadMetrics}
               disabled={loading}

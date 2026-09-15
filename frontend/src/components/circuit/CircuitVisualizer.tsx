@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import ResetButton from '../common/ResetButton';
 
 interface CircuitVisualizerProps {
   currentStage?: 'keygen' | 'sign' | 'verify' | 'attack';
@@ -27,7 +28,16 @@ export default function CircuitVisualizer({ currentStage = 'keygen' }: CircuitVi
         <h3 className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider">
           QUANTUM OPTICAL CIRCUIT STAGE
         </h3>
-        <div className="flex space-x-1 font-mono">
+        <div className="flex items-center space-x-1.5 font-mono">
+          {selectedTab !== null && (
+            <ResetButton
+              size="xs"
+              variant="ghost"
+              label="Live Stage"
+              onReset={() => setSelectedTab(null)}
+              title="Reset to live simulation stage"
+            />
+          )}
           {(['keygen', 'sign', 'verify'] as const).map((t) => (
             <button
               key={t}

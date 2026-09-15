@@ -6,6 +6,7 @@ import ProtocolCatalogueModal from '@/components/protocols/ProtocolCatalogueModa
 import RoleConsoles from '@/components/dashboard/RoleConsoles';
 import ProtocolSequenceTrace from '@/components/dashboard/ProtocolSequenceTrace';
 import GuidedTour from '@/components/dashboard/GuidedTour';
+import ResetButton from '@/components/common/ResetButton';
 import { phase2Api } from '@/services/phase2Api';
 import { ProtocolInfo, SessionState, CreateSessionRequest } from '@/types/phase2';
 import {
@@ -58,6 +59,25 @@ export default function DashboardPage() {
       setTimeout(() => setNotification(null), 4000);
     } catch (err) {
       console.error('Failed to select protocol:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetSession = async () => {
+    try {
+      setLoading(true);
+      const newSess = await phase2Api.createSession({
+        protocol_id: session?.protocol_id || 'practical_qds',
+        distance_km: session?.distance_km || 25.0,
+        message_size_bytes: 512,
+      });
+      setSession(newSess);
+      setTourStep(1);
+      setNotification(`Session reset: Restored clean initial state for ${newSess.protocol_name}`);
+      setTimeout(() => setNotification(null), 4000);
+    } catch (err) {
+      console.error('Failed to reset session:', err);
     } finally {
       setLoading(false);
     }
@@ -153,6 +173,15 @@ export default function DashboardPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+          <ResetButton
+            label="Reset Session"
+            size="md"
+            variant="outline"
+            disabled={loading || !session}
+            onReset={handleResetSession}
+            title="Reset current session to clean state"
+          />
+
           <button
             onClick={() => setCatalogueOpen(true)}
             className="px-4 py-2 rounded-lg bg-[#071842] hover:bg-[#0c2464] text-white font-semibold transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"

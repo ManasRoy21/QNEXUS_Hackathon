@@ -12,6 +12,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import SimulatedBadge from '../common/SimulatedBadge';
+import ResetButton from '../common/ResetButton';
 
 interface ProtocolCatalogueModalProps {
   isOpen: boolean;
@@ -36,6 +37,13 @@ export default function ProtocolCatalogueModal({
   const [messageSizeBytes, setMessageSizeBytes] = useState<number>(256);
   const [untrustedNodeCompromised, setUntrustedNodeCompromised] = useState<boolean>(false);
   const [decoyStateCount, setDecoyStateCount] = useState<number>(3);
+
+  const handleResetParameters = () => {
+    setDistanceKm(20);
+    setMessageSizeBytes(256);
+    setUntrustedNodeCompromised(false);
+    setDecoyStateCount(3);
+  };
 
   if (!isOpen) return null;
 
@@ -222,6 +230,14 @@ export default function ProtocolCatalogueModal({
                         <Sliders className="w-3.5 h-3.5 text-[#20C8A7]" />
                         <span>Parameter Configuration (FR-A2)</span>
                       </span>
+                      <ResetButton
+                        size="xs"
+                        variant="ghost"
+                        label="Reset Parameters"
+                        disabled={distanceKm === 20 && messageSizeBytes === 256 && !untrustedNodeCompromised && decoyStateCount === 3}
+                        onReset={handleResetParameters}
+                        title="Reset parameters to defaults"
+                      />
                     </div>
 
                     {/* Distance Slider */}
@@ -330,6 +346,14 @@ export default function ProtocolCatalogueModal({
             <span>Standardized CSPRNG Protocol Engine</span>
           </div>
           <div className="flex items-center space-x-3">
+            <ResetButton
+              size="sm"
+              variant="outline"
+              label="Reset Params"
+              disabled={distanceKm === 20 && messageSizeBytes === 256 && !untrustedNodeCompromised && decoyStateCount === 3}
+              onReset={handleResetParameters}
+              title="Reset simulation parameters to default values"
+            />
             <button
               onClick={onClose}
               className="px-4 py-2 rounded-lg border border-[#CBD5E1] text-xs font-mono font-semibold text-[#475569] hover:bg-slate-50 transition-colors"

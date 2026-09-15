@@ -14,6 +14,7 @@ import {
   Info,
 } from 'lucide-react';
 import SimulatedBadge from '@/components/common/SimulatedBadge';
+import ResetButton from '@/components/common/ResetButton';
 import { phase2Api } from '@/services/phase2Api';
 import { SessionState } from '@/types/phase2';
 
@@ -23,6 +24,13 @@ export default function AttacksPage() {
   const [intensity, setIntensity] = useState<number>(1.0);
   const [loading, setLoading] = useState<boolean>(false);
   const [sessionState, setSessionState] = useState<SessionState | null>(null);
+
+  const handleReset = () => {
+    setSelectedProtocol('practical_qds');
+    setSelectedAttack('FORGERY');
+    setIntensity(1.0);
+    setSessionState(null);
+  };
 
   const attacksList = [
     {
@@ -119,14 +127,23 @@ export default function AttacksPage() {
             </p>
           </div>
 
-          <button
-            onClick={handleExecuteAttack}
-            disabled={loading}
-            className="px-6 py-3 rounded-lg bg-[#071842] hover:bg-[#0c2464] text-white font-mono text-xs font-semibold transition-all shadow-md flex items-center space-x-2 cursor-pointer disabled:opacity-50"
-          >
-            <Zap className="w-4 h-4 text-[#20C8A7]" />
-            <span>{loading ? 'Simulating Adversary...' : 'Launch Attack Vector'}</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <ResetButton
+              label="Reset Simulation"
+              size="md"
+              variant="outline"
+              disabled={loading || (!sessionState && selectedProtocol === 'practical_qds' && selectedAttack === 'FORGERY' && intensity === 1.0)}
+              onReset={handleReset}
+            />
+            <button
+              onClick={handleExecuteAttack}
+              disabled={loading}
+              className="px-6 py-3 rounded-lg bg-[#071842] hover:bg-[#0c2464] text-white font-mono text-xs font-semibold transition-all shadow-md flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+            >
+              <Zap className="w-4 h-4 text-[#20C8A7]" />
+              <span>{loading ? 'Simulating Adversary...' : 'Launch Attack Vector'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Protocol Selector for Attack Testing */}
@@ -232,9 +249,17 @@ export default function AttacksPage() {
                   )}
                   <span>ATTACK VERDICT: {atk.verdict}</span>
                 </div>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/80 border border-black/10">
-                  {atk.reason_code}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/80 border border-black/10">
+                    {atk.reason_code}
+                  </span>
+                  <ResetButton
+                    size="xs"
+                    variant="subtle"
+                    label="Reset Verdict"
+                    onReset={handleReset}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2 text-xs font-mono">
