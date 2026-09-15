@@ -28,24 +28,31 @@ export default function DashboardPage() {
   const [tourStep, setTourStep] = useState<number>(1);
   const [showTour, setShowTour] = useState<boolean>(true);
   const [notification, setNotification] = useState<string | null>(null);
+  const [initError, setInitError] = useState<string | null>(null);
+
+  const init = async () => {
+    try {
+      setInitError(null);
+      setLoading(true);
+      const cat = await phase2Api.getProtocols();
+      setProtocols(cat.protocols);
+      // Create initial session with Practical QDS
+      const initSess = await phase2Api.createSession({
+        protocol_id: 'practical_qds',
+        distance_km: 25.0,
+        message_size_bytes: 512,
+      });
+      setSession(initSess);
+    } catch (err: any) {
+      console.error('Failed to initialize session:', err);
+      setInitError(err?.message || 'Backend unreachable on http://localhost:8000');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Load protocols and initialize default session
   useEffect(() => {
-    async function init() {
-      try {
-        const cat = await phase2Api.getProtocols();
-        setProtocols(cat.protocols);
-        // Create initial session with Practical QDS
-        const initSess = await phase2Api.createSession({
-          protocol_id: 'practical_qds',
-          distance_km: 25.0,
-          message_size_bytes: 512,
-        });
-        setSession(initSess);
-      } catch (err) {
-        console.error('Failed to initialize session:', err);
-      }
-    }
     init();
   }, []);
 
@@ -152,6 +159,24 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* ── Offline Alert Banner ── */}
+      {initError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between gap-3 text-sm text-red-800">
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <div>
+              <span className="font-semibold">Backend Unreachable:</span> {initError}. Make sure the FastAPI service is running on port 8000 (`uvicorn main:app --port 8000`).
+            </div>
+          </div>
+          <button
+            onClick={init}
+            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors flex-shrink-0"
+          >
+            Retry Connection
+          </button>
+        </div>
+      )}
+
       {/* ── Active Session Bar ── */}
       <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -163,11 +188,13 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center space-x-3">
             <h1 className="font-serif text-2xl sm:text-3xl text-[#071842] font-bold">
-              {session?.protocol_name || 'Loading Protocol...'}
+              {session?.protocol_name || (initError ? 'Backend Disconnected' : 'Loading Protocol...')}
             </h1>
-            <span className="text-xs font-mono px-2.5 py-1 rounded bg-[#F1F5F9] border border-[#CBD5E1] text-[#071842] font-semibold">
-              {session?.distance_km} km ({session?.channel_loss_db} dB Loss)
-            </span>
+            {session && (
+              <span className="text-xs font-mono px-2.5 py-1 rounded bg-[#F1F5F9] border border-[#CBD5E1] text-[#071842] font-semibold">
+                {session.distance_km} km ({session.channel_loss_db} dB Loss)
+              </span>
+            )}
           </div>
         </div>
 
