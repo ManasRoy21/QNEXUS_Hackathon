@@ -45,6 +45,10 @@ app.add_middleware(
 # Mount REST API v1 routes
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+# Also mount simulation router directly at /simulation for direct route compatibility
+from app.api.v1.endpoints.simulation import router as simulation_router
+app.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
+
 
 @app.get("/", summary="Root Health / Info")
 def root():

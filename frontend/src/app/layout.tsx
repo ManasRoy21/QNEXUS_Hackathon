@@ -22,7 +22,7 @@ export default function RootLayout({
             <div className="flex items-center space-x-3">
               <span className="inline-flex items-center space-x-1.5 text-[#20C8A7]">
                 <span className="h-2 w-2 rounded-full bg-[#20C8A7] animate-pulse"></span>
-                <span className="font-semibold uppercase tracking-wider">PHASE 2 PLATFORM</span>
+                <span className="font-semibold uppercase tracking-wider">QUANTUM SIMULATION PLATFORM</span>
               </span>
               <span className="hidden md:inline text-[#94A3B8]">|</span>
               <span className="hidden md:inline text-[#94A3B8]">
@@ -34,7 +34,7 @@ export default function RootLayout({
                 SIMULATED QUANTUM RUNS
               </span>
               <span className="hidden sm:inline">·</span>
-              <span>Baseline: <strong className="text-white font-mono">Practical QDS / MDI / OTUH</strong></span>
+              <span>Baseline: <strong className="text-white font-mono">Practical QDS (Yin, Fu &amp; Chen)</strong></span>
             </div>
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function RootLayout({
                       QDS
                     </span>
                     <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-[#F1F5F9] border border-[#CBD5E1] text-[#071842] font-semibold">
-                      PHASE 2 ENGINE
+                      SIMULATION ENGINE
                     </span>
                   </div>
                   <p className="text-[10px] font-mono text-[#64748B] hidden sm:block tracking-wide uppercase">
@@ -73,28 +73,16 @@ export default function RootLayout({
                 Overview
               </Link>
               <Link
-                href="/dashboard"
-                className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
+                href="/workflow"
+                className="px-3.5 py-2 rounded-md bg-[#071842] text-[#20C8A7] hover:bg-[#0c2464] font-bold transition-colors uppercase tracking-wider shadow-xs"
               >
-                3-Pane Console
-              </Link>
-              <Link
-                href="/attacks"
-                className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
-              >
-                Attack Suite
+                7-Step Research Workflow
               </Link>
               <Link
                 href="/benchmarks"
                 className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
               >
                 Benchmarks &amp; Sweeps
-              </Link>
-              <Link
-                href="/analytics"
-                className="px-3.5 py-2 rounded-md text-[#475569] hover:text-[#071842] hover:bg-slate-100 transition-colors uppercase tracking-wider"
-              >
-                Hoeffding Bounds
               </Link>
             </nav>
 
@@ -105,10 +93,10 @@ export default function RootLayout({
                 <span>FastAPI :8000</span>
               </div>
               <Link
-                href="/dashboard"
+                href="/workflow"
                 className="btn-dark text-xs font-mono font-semibold px-4 py-2 rounded-md inline-flex items-center space-x-1.5 shadow-sm"
               >
-                <span>Launch SOC</span>
+                <span>Launch Workflow</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -134,32 +122,31 @@ export default function RootLayout({
                   </span>
                 </div>
                 <p className="text-sm text-[#94A3B8] leading-relaxed max-w-md font-sans">
-                  Deterministic threat detection engine for multi-party continuous-variable quantum digital signatures (CV-QDS). Eliminates algorithmic vulnerabilities using physical Born-rule measurement distributions and finite-key Hoeffding concentration bounds.
+                  Deterministic simulation and threat detection engine for multi-party quantum digital signatures (QDS). Evaluates Information-Theoretic Security (ITS) based on physical Born-rule measurement distributions, protocol thresholds (T_a, T_v), and finite-key statistical bounds.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2">
                   <span className="text-[11px] font-mono bg-[#0B1E4E] text-[#20C8A7] border border-[#1D293D] px-2.5 py-1 rounded">
                     Zero-AI Deterministic
                   </span>
                   <span className="text-[11px] font-mono bg-[#0B1E4E] text-slate-300 border border-[#1D293D] px-2.5 py-1 rounded">
-                    Hoeffding Bounds
+                    Protocol-Aware Attacks
                   </span>
                   <span className="text-[11px] font-mono bg-[#0B1E4E] text-slate-300 border border-[#1D293D] px-2.5 py-1 rounded">
-                    Information-Theoretic Security
+                    Statistical Security Bounds
                   </span>
                 </div>
               </div>
 
               <div className="md:col-span-3 space-y-3 font-sans">
                 <h4 className="text-xs font-mono uppercase tracking-widest text-[#94A3B8] font-semibold">
-                  Threat Classes
+                  Canonical Threats
                 </h4>
                 <ul className="space-y-2 text-xs font-mono text-[#CBD5E1]">
-                  <li>01. INTERCEPT_RESEND (Eve QBER)</li>
-                  <li>02. PAYLOAD_FORGERY (Hash Tamper)</li>
-                  <li>03. SIGNER_IMPERSONATION (Mallory)</li>
-                  <li>04. HISTORIC_REPLAY (Nonce Stale)</li>
-                  <li>05. DISHONEST_REPUDIATION (Alice)</li>
-                  <li>06. DETECTOR_SIDE_CHANNEL (Blinding)</li>
+                  <li>01. FR-E1 Signature Forgery (ε₁)</li>
+                  <li>02. FR-E2 Dishonest Alice Repudiation (ε₂)</li>
+                  <li>03. FR-E3 Intercept-Resend (Eve QBER)</li>
+                  <li>04. FR-E4 Detector Blinding (Side-Channel)</li>
+                  <li>05. FR-B3 Photon Number Splitting (PNS)</li>
                 </ul>
               </div>
 
@@ -168,10 +155,10 @@ export default function RootLayout({
                   Theoretical Foundations
                 </h4>
                 <p className="text-xs text-[#94A3B8] leading-relaxed">
-                  Thornton et al. finite-key security parameterization with boundary postselection filter <span className="font-mono text-white">(Yield ≥ 95%)</span> and Module G encrypted bit symmetrization guard.
+                  Practical QDS (Yin, Fu &amp; Chen, Phys. Rev. A 2016) reference parameterization with conclusive bit postselection and 4 statistical bound evaluation regimes (Hoeffding, Chernoff, Random Sampling, Protocol Bound).
                 </p>
                 <div className="pt-2 text-xs font-mono text-[#20C8A7]">
-                  P(|ê - e_true| ≥ ε) ≤ 2 exp(-2 n ε²)
+                  ε_sec = ε₁ (forgery) + ε₂ (repudiation)
                 </div>
               </div>
             </div>
@@ -181,16 +168,12 @@ export default function RootLayout({
                 © {new Date().getFullYear()} QDS Threat Detection Engine. All rights reserved.
               </div>
               <div className="flex items-center space-x-4">
-                <Link href="/dashboard" className="hover:text-white transition-colors">
-                  Operations Console
+                <Link href="/workflow" className="hover:text-white transition-colors">
+                  Research Workflow
                 </Link>
                 <span>·</span>
-                <Link href="/attacks" className="hover:text-white transition-colors">
-                  Attack Injection
-                </Link>
-                <span>·</span>
-                <Link href="/analytics" className="hover:text-white transition-colors">
-                  Statistical Bounds
+                <Link href="/benchmarks" className="hover:text-white transition-colors">
+                  Benchmarks &amp; Sweeps
                 </Link>
               </div>
             </div>

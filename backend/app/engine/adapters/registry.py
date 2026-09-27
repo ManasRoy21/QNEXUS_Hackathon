@@ -131,12 +131,21 @@ class ProtocolRegistry:
         """Returns catalogue of all protocols (active + theoretical) for UI selection."""
         catalogue = []
 
-        # Active practical protocols
+        # Active protocols according to Phase 1 & Section 5 Specification
         for pid, adapter in self._adapters.items():
+            if pid == "practical_qds":
+                status = "Reference Model (Fully Quantitatively Modeled)"
+            elif pid == "mdi_qds":
+                status = "Framework / Qualitative (Model Pending Phase 7)"
+            elif pid == "decoy_qds":
+                status = "Decoy-State Protocol (PNS Guarded)"
+            else:
+                status = "Framework / Qualitative"
+
             catalogue.append({
                 "id": pid,
                 "name": adapter.name,
-                "status": "Experimentally proven",
+                "status": status,
                 "category": "experimental",
                 "is_interactive": True,
                 "description": adapter.description,
@@ -155,18 +164,29 @@ class ProtocolRegistry:
 
         return catalogue
 
+
     def get_protocol_info(self, protocol_id: str) -> Optional[Dict[str, Any]]:
         """Retrieves details of any protocol by ID."""
         if protocol_id in self._adapters:
             adapter = self._adapters[protocol_id]
+            if protocol_id == "practical_qds":
+                status = "Reference Model (Fully Quantitatively Modeled)"
+            elif protocol_id == "mdi_qds":
+                status = "Framework / Qualitative (Model Pending Phase 7)"
+            elif protocol_id == "decoy_qds":
+                status = "Decoy-State Protocol (PNS Guarded)"
+            else:
+                status = "Framework / Qualitative"
+
             return {
                 "id": adapter.protocol_id,
                 "name": adapter.name,
-                "status": "Experimentally proven",
+                "status": status,
                 "category": "experimental",
                 "is_interactive": True,
                 "description": adapter.description,
             }
+
         elif protocol_id in self._theoretical_references:
             return self._theoretical_references[protocol_id]
         return None

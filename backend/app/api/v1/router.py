@@ -9,9 +9,13 @@ from app.api.v1.endpoints import (
     protocols,
     sessions,
     benchmarks,
+    simulation,
 )
 
 api_router = APIRouter()
+
+# Target Protocol-Aware Simulation Endpoints (REQ-QDS-SIM-2026-V1)
+api_router.include_router(simulation.router, prefix="/simulation", tags=["simulation"])
 
 # Existing Day 1-8 endpoints for backwards compatibility
 api_router.include_router(keygen.router, prefix="/simulate", tags=["simulate"])
@@ -25,3 +29,4 @@ api_router.include_router(metrics.router, tags=["metrics"])
 api_router.include_router(protocols.router, tags=["protocols"])
 api_router.include_router(sessions.router, tags=["sessions"])
 api_router.include_router(benchmarks.router, tags=["benchmarks"])
+

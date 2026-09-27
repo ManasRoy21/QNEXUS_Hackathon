@@ -23,7 +23,7 @@ export default function HomePage() {
           <div className="inline-flex items-center space-x-2 bg-white/90 border border-[#CBD5E1] px-3 py-1 rounded-full text-xs font-mono text-[#071842] shadow-xs">
             <span className="w-2 h-2 rounded-full bg-[#20C8A7] animate-pulse"></span>
             <span className="font-semibold tracking-wider uppercase">
-              CATEGORY: QUANTUM DIGITAL SIGNATURES (CV-QDS)
+              CATEGORY: QUANTUM DIGITAL SIGNATURES (QDS)
             </span>
           </div>
 
@@ -37,25 +37,18 @@ export default function HomePage() {
 
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 font-mono">
             <Link
-              href="/dashboard"
-              className="btn-dark px-6 py-3 rounded-lg text-sm font-semibold inline-flex items-center space-x-2 shadow-md"
+              href="/workflow"
+              className="btn-teal px-6 py-3 rounded-lg text-sm font-bold inline-flex items-center space-x-2 shadow-md"
             >
-              <span>3-Pane Console (Alice/Bob/Charlie)</span>
-              <ArrowRight className="w-4 h-4 text-[#20C8A7]" />
+              <span>Launch 7-Step Research Workflow</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/benchmarks"
               className="px-6 py-3 rounded-lg text-sm font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors inline-flex items-center space-x-2"
             >
-              <span>Protocol Benchmarks &amp; Sweeps</span>
+              <span>Benchmarks &amp; Sweeps</span>
               <Activity className="w-4 h-4 text-[#20C8A7]" />
-            </Link>
-            <Link
-              href="/attacks"
-              className="px-6 py-3 rounded-lg text-sm font-semibold bg-white border border-[#CBD5E1] text-[#071842] hover:bg-slate-50 transition-colors inline-flex items-center space-x-2"
-            >
-              <span>Attack Simulation Suite</span>
-              <Zap className="w-4 h-4 text-[#263EDC]" />
             </Link>
           </div>
         </div>
@@ -71,14 +64,14 @@ export default function HomePage() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-[#CBD5E1] pb-4">
           <div>
             <span className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider block">
-              EMPIRICAL BENCHMARKS
+              REFERENCE DESIGN BASELINES
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl text-[#071842]">
-              Deterministic Protocol Performance
+              Calibrated Protocol Targets (Literature Spec)
             </h2>
           </div>
           <span className="text-xs font-mono text-[#64748B]">
-            Automated Day 10 Benchmark Suite (70 Protocol Runs)
+            Reference Baselines · Run live simulations via the 7-Step Workflow
           </span>
         </div>
 
@@ -207,15 +200,15 @@ export default function HomePage() {
                 <span className="font-bold text-[#071842] text-sm">03</span>
               </div>
               <h3 className="text-lg font-bold text-[#071842] font-grotesk">
-                Hoeffding Bound Evaluator
+                Statistical Security Bounds Engine
               </h3>
               <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
-                Module C dynamically computes finite-key robustness ($e_&#123;rob&#125; \approx 6.58\%$), repudiation ($e_&#123;rep&#125; \approx 13.58\%$), and forgery ($e_&#123;forg&#125; \approx 20.58\%$) bounds to guarantee mathematical security.
+                Module C dynamically computes 4 rigorous statistical regimes: Hoeffding concentration, Chernoff lower-tail bounds, Practical QDS random sampling, and Protocol Bounds (ε₁ unforgeability &amp; ε₂ non-repudiation).
               </p>
             </div>
             <div className="pt-4 border-t border-[#E2E8F0] mt-4 flex items-center justify-between text-xs font-mono text-[#071842]">
               <span className="text-[#64748B]">Evaluation Method</span>
-              <span className="font-semibold text-[#071842]">Deterministic Bounds</span>
+              <span className="font-semibold text-[#071842]">4 Analytical Bound Regimes</span>
             </div>
           </div>
         </div>
@@ -229,14 +222,14 @@ export default function HomePage() {
               COVERAGE MATRIX
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl text-[#071842]">
-              100% Deterministic Attack Coverage
+              Protocol-Aware Threat Analysis Matrix
             </h2>
           </div>
           <Link
-            href="/attacks"
+            href="/workflow"
             className="text-xs font-mono font-semibold text-[#071842] hover:text-[#263EDC] inline-flex items-center space-x-1"
           >
-            <span>Launch Attack Suite</span>
+            <span>Run in Research Workflow</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -257,43 +250,36 @@ export default function HomePage() {
                 <td className="py-3 px-4 font-bold text-[#071842]">INTERCEPT_RESEND</td>
                 <td className="py-3 px-4 font-sans">Fiber tapping; unaligned projective measurement</td>
                 <td className="py-3 px-4">Born-Rule QBER</td>
-                <td className="py-3 px-4 text-rose-600 font-semibold">QBER &gt; e_rep (13.58%)</td>
+                <td className="py-3 px-4 text-rose-600 font-semibold">QBER &gt; T_a (Abort)</td>
                 <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">CRITICAL</span></td>
               </tr>
               <tr className="hover:bg-slate-50 transition-colors">
                 <td className="py-3 px-4 font-bold text-[#071842]">FORGERY</td>
-                <td className="py-3 px-4 font-sans">Tampering with message hash / eigenstates</td>
-                <td className="py-3 px-4">Hamming Disagreement</td>
-                <td className="py-3 px-4 text-amber-600 font-semibold">Hamming &gt; e_forg (20.58%)</td>
-                <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">HIGH</span></td>
-              </tr>
-              <tr className="hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 font-bold text-[#071842]">IMPERSONATION</td>
-                <td className="py-3 px-4 font-sans">Adversary (Mallory) forged public key</td>
-                <td className="py-3 px-4">PKI Credential Inspector</td>
-                <td className="py-3 px-4 text-amber-600 font-semibold">Key ≠ Authorized Alice</td>
-                <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">HIGH</span></td>
-              </tr>
-              <tr className="hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 font-bold text-[#071842]">REPLAY</td>
-                <td className="py-3 px-4 font-sans">Replaying historic valid signature block</td>
-                <td className="py-3 px-4">Temporal Nonce Guard</td>
-                <td className="py-3 px-4 text-amber-600 font-semibold">Δt &gt; 60s or Reused Nonce</td>
+                <td className="py-3 px-4 font-sans">Adversary fabricates signature without private material</td>
+                <td className="py-3 px-4">Conclusive Mismatch ε₁</td>
+                <td className="py-3 px-4 text-amber-600 font-semibold">Mismatch &gt; T_v (Reject)</td>
                 <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">HIGH</span></td>
               </tr>
               <tr className="hover:bg-slate-50 transition-colors">
                 <td className="py-3 px-4 font-bold text-[#071842]">REPUDIATION</td>
-                <td className="py-3 px-4 font-sans">Dishonest Alice sends mismatched states</td>
-                <td className="py-3 px-4">Module G Symmetrization</td>
-                <td className="py-3 px-4 text-rose-600 font-semibold">Both Verifiers QBER &gt; e_rep</td>
+                <td className="py-3 px-4 font-sans">Dishonest Alice attempts to issue contradictory tokens</td>
+                <td className="py-3 px-4">Verifiers Symmetrization ε₂</td>
+                <td className="py-3 px-4 text-rose-600 font-semibold">T_v − T_a − Δ &le; 0 (Repudiation Risk)</td>
                 <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">CRITICAL</span></td>
               </tr>
               <tr className="hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 font-bold text-[#071842]">DETECTOR_SIDE_CHANNEL</td>
-                <td className="py-3 px-4 font-sans">CW laser blinding injected into Path B</td>
-                <td className="py-3 px-4">MDI Dual-Path Cross-Check</td>
-                <td className="py-3 px-4 text-rose-600 font-semibold">|Path A - Path B| &gt; τ_bias</td>
-                <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">CRITICAL</span></td>
+                <td className="py-3 px-4 font-bold text-[#071842]">DETECTOR_BLINDING</td>
+                <td className="py-3 px-4 font-sans">CW bright laser pulse blinding APD detectors</td>
+                <td className="py-3 px-4">Protocol-Aware Engine</td>
+                <td className="py-3 px-4 text-[#64748B] font-semibold">Model Not Available on Practical QDS</td>
+                <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300">ISOLATED</span></td>
+              </tr>
+              <tr className="hover:bg-slate-50 transition-colors">
+                <td className="py-3 px-4 font-bold text-[#071842]">PHOTON_NUMBER_SPLITTING</td>
+                <td className="py-3 px-4 font-sans">Multi-photon pulse splitting over lossy fiber</td>
+                <td className="py-3 px-4">Protocol-Aware Engine</td>
+                <td className="py-3 px-4 text-[#64748B] font-semibold">Model Not Available on Practical QDS</td>
+                <td className="py-3 px-4"><span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300">ISOLATED</span></td>
               </tr>
             </tbody>
           </table>
@@ -312,16 +298,16 @@ export default function HomePage() {
         </div>
         <div className="flex items-center space-x-3 shrink-0">
           <Link
-            href="/dashboard"
+            href="/workflow"
             className="btn-teal px-5 py-2.5 rounded-lg text-xs font-mono font-bold shadow-sm"
           >
-            Launch Console
+            Launch Workflow
           </Link>
           <Link
-            href="/attacks"
+            href="/benchmarks"
             className="px-5 py-2.5 rounded-lg text-xs font-mono font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors"
           >
-            Attack Suite
+            Benchmarks &amp; Sweeps
           </Link>
         </div>
       </section>

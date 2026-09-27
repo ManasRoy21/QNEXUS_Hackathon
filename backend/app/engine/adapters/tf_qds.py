@@ -199,10 +199,15 @@ class TFQDSAdapter(BaseProtocolAdapter):
             attack_type=atk_type,
             attack_detected=False,
             protocol_resisted=True,
-            verdict="CLEAN",
-            reason_code="VERDICT_SECURE",
-            explanation="TF-QDS executed cleanly over long distance.",
+            verdict="SIMULATION_MODEL_NOT_AVAILABLE",
+            reason_code="ERR_ATTACK_MODEL_NOT_IMPLEMENTED",
+            explanation=(
+                f"Attack type '{atk_type}' has no implemented model for TF-QDS in Phase 2. "
+                "Use POST /api/v1/simulation/attack for the full protocol-aware dispatcher. "
+                "This response is NOT a security clearance."
+            ),
             resulting_qber=key_material.quantum_bit_error_rate,
-            resulting_verdict_bob="ACCEPT",
-            resulting_verdict_charlie="ACCEPT",
+            resulting_verdict_bob="UNKNOWN",
+            resulting_verdict_charlie="UNKNOWN",
+            is_simulated=False,
         )
