@@ -1,39 +1,48 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/next"
+  "services": {
+    "frontend": {
+      "root": "frontend",
+      "framework": "nextjs"
     },
-    {
-      "src": "backend/api/index.py",
-      "use": "@vercel/python"
+    "backend": {
+      "root": "backend"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/api/index.py"
+      "source": "/api/v1/(.*)?",
+      "destination": {
+        "type": "service",
+        "service": "backend"
+      }
     },
     {
-      "src": "/health",
-      "dest": "backend/api/index.py"
+      "source": "/health",
+      "destination": {
+        "type": "service",
+        "service": "backend"
+      }
     },
     {
-      "src": "/simulation/(.*)",
-      "dest": "backend/api/index.py"
+      "source": "/ws/stream(.*)?",
+      "destination": {
+        "type": "service",
+        "service": "backend"
+      }
     },
     {
-      "src": "/docs",
-      "dest": "backend/api/index.py"
+      "source": "/simulation/(.*)?",
+      "destination": {
+        "type": "service",
+        "service": "backend"
+      }
     },
     {
-      "src": "/openapi.json",
-      "dest": "backend/api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
+      "source": "/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "frontend"
+      }
     }
   ]
 }
