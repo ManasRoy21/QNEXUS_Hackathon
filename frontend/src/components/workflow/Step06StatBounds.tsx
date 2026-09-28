@@ -23,6 +23,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import SimulatedBadge from '@/components/common/SimulatedBadge';
+import { MathBlock, InlineMath, formatScientific, formatQdsVariable } from '@/components/common/MathBlock';
 
 interface Props {
   protocol: string;
@@ -683,8 +684,8 @@ export default function Step06StatBounds({
                 <span className="text-xs font-mono font-bold text-[#071842] uppercase tracking-wider block">
                   2. FORMULA
                 </span>
-                <div className="bg-[#071842] text-[#20C8A7] p-3 rounded-lg font-mono text-xs">
-                  {statBoundResult.formula}
+                <div className="bg-[#071842] text-white p-3.5 rounded-lg font-mono text-xs dark-math text-center">
+                  <MathBlock formula={statBoundResult.formula} ariaLabel="Statistical Bound Formula" />
                 </div>
               </div>
 

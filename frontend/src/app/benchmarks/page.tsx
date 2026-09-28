@@ -24,6 +24,7 @@ import {
 import SimulatedBadge from '@/components/common/SimulatedBadge';
 import { qdsClient } from '@/services/qdsClient';
 import { SweepResponse } from '@/types/unifiedSimulation';
+import { MathBlock, InlineMath } from '@/components/common/MathBlock';
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /* Sweep Preset Definitions — 6 Required Benchmark Graphs                      */
@@ -54,7 +55,7 @@ const SWEEP_PRESETS: SweepPreset[] = [
     defaultStep: 0.1,
     defaultAttack: 'INTERCEPT_RESEND',
     defaultPulseCount: 2000,
-    formula: 'e_obs = e_0 + 0.5·γ·(1 − 2·e_0),   abort if e_obs > T_a',
+    formula: 'e_{\\text{obs}} = e_0 + 0.5\\,\\gamma\\,(1 - 2e_0), \\quad \\text{abort if } e_{\\text{obs}} > T_A',
     description:
       'Evaluates intercept-resend eavesdropping (FR-E3). Eve intercepts fraction γ of pulses, elevating QBER toward 50%. The protocol aborts when e_obs > T_a.',
   },
@@ -68,7 +69,7 @@ const SWEEP_PRESETS: SweepPreset[] = [
     defaultStep: 1500,
     defaultAttack: 'FORGERY',
     defaultPulseCount: 2000,
-    formula: 'ε₁ ≤ exp(−(S_c − T_v)² / (2·S_c) · P_C^c · M_u)',
+    formula: '\\varepsilon_1 \\leq \\exp\\left(-\\frac{(S_C - T_V)^2}{2 S_C} \\cdot P_{C^c} \\cdot M_u\\right)',
     description:
       'Demonstrates exponential suppression of existential forgery bound ε₁ as total pulse count N and untested register M_u grow.',
   },
@@ -82,7 +83,7 @@ const SWEEP_PRESETS: SweepPreset[] = [
     defaultStep: 15,
     defaultAttack: 'NONE',
     defaultPulseCount: 3000,
-    formula: 'R = M_u / (2·N)   (conclusive untested bits per total optical pulses)',
+    formula: 'R = \\frac{M_u}{2N} \\quad \\text{(conclusive untested bits per total optical pulses)}',
     description:
       'Measures effective signature generation rate R = M_u / (2N). N represents pulses sent to each recipient; 2N total optical pulses are used per signature bit.',
   },
@@ -96,7 +97,7 @@ const SWEEP_PRESETS: SweepPreset[] = [
     defaultStep: 0.008,
     defaultAttack: 'REPUDIATION',
     defaultPulseCount: 2000,
-    formula: 'ε₂ ≤ exp(−2·(T_v − T_a − Δ)²·M_u²·β² / n_test)',
+    formula: '\\varepsilon_2 \\leq \\exp\\left(-\\frac{2(T_V - T_A - \\Delta)^2 M_u^2 \\beta^2}{n_{\\text{test}}}\\right)',
     description:
       'Examines signer repudiation probability ε₂ as the threshold gap (T_v − T_a) narrows when T_a increases toward T_v = 0.065.',
   },
@@ -110,7 +111,7 @@ const SWEEP_PRESETS: SweepPreset[] = [
     defaultStep: 0.02,
     defaultAttack: 'FORGERY',
     defaultPulseCount: 3000,
-    formula: 'ε₁ ≤ exp(−(S_c − T_v)² / (2·S_c) · P_C^c · M_u)',
+    formula: '\\varepsilon_1 \\leq \\exp\\left(-\\frac{(S_C - T_V)^2}{2 S_C} \\cdot P_{C^c} \\cdot M_u\\right)',
     description:
       'Analyzes unforgeability guarantee ε₁ as verification threshold T_v approaches the minimal conclusive fraction S_c.',
   },
@@ -124,7 +125,7 @@ const SWEEP_PRESETS: SweepPreset[] = [
     defaultStep: 20,
     defaultAttack: 'NONE',
     defaultPulseCount: 2000,
-    formula: 'QBER = (e_det·η + 0.5·p_dark) / (η + p_dark),   η = 10^(−α·L/10)',
+    formula: '\\text{QBER} = \\frac{e_{\\text{det}} \\eta + 0.5 p_{\\text{dark}}}{\\eta + p_{\\text{dark}}}, \\quad \\eta = 10^{-\\alpha L / 10}',
     description:
       'Evaluates baseline physical channel error rate elevation as fiber attenuation reduces signal intensity relative to detector dark counts.',
   },
@@ -510,9 +511,11 @@ export default function BenchmarksPage() {
                 Model Formula
               </span>
             </div>
-            <div className="bg-[#071842] text-white p-3 rounded-lg font-mono text-[11px] space-y-1.5">
-              <span className="text-[#20C8A7] font-bold block">{activeDef.graphTitle}</span>
-              <code className="text-[#E2E8F0] block leading-relaxed">{activeDef.formula}</code>
+            <div className="bg-[#071842] text-white p-3.5 rounded-lg font-mono text-xs space-y-2">
+              <span className="text-[#20C8A7] font-bold block text-[11px]">{activeDef.graphTitle}</span>
+              <div className="bg-slate-900/80 p-3 rounded border border-slate-800 text-center dark-math">
+                <MathBlock formula={activeDef.formula} ariaLabel={activeDef.label} />
+              </div>
               <p className="text-[10px] text-[#94A3B8] pt-1 leading-snug">{activeDef.description}</p>
             </div>
           </div>

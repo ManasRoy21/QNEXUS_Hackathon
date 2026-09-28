@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MaterialGenerationRequest, CanonicalSimulationState } from '@/types/unifiedSimulation';
 import { Play, Activity, Binary, ArrowRight, CheckCircle2, Shield, Info, Layers } from 'lucide-react';
+import { InlineMath } from '@/components/common/MathBlock';
 
 interface Props {
   protocol: string;
@@ -92,9 +93,14 @@ export default function Step02Material({
             <span className="text-[9px] text-[#64748B] block font-bold">RECEIVERS</span>
             <span className="font-bold text-[#071842] text-[11px] block">Bob &amp; Charlie</span>
             <span className="text-[9px] text-[#64748B]">
-              {simulationState
-                ? `KB: ${simulationState.measurement_statistics.conclusive_count_bob} | KC: ${simulationState.measurement_statistics.conclusive_count_charlie}`
-                : 'Conclusive detection'}
+              {simulationState ? (
+                <>
+                  <InlineMath math="K_B" />: {simulationState.measurement_statistics.conclusive_count_bob} |{' '}
+                  <InlineMath math="K_C" />: {simulationState.measurement_statistics.conclusive_count_charlie}
+                </>
+              ) : (
+                'Conclusive detection'
+              )}
             </span>
           </div>
 
@@ -104,9 +110,17 @@ export default function Step02Material({
 
           <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
             <span className="text-[9px] text-emerald-700 block font-bold">SIGNATURE MATERIAL</span>
-            <span className="font-bold text-[11px] block">Test (β) + Untested (Mu)</span>
+            <span className="font-bold text-[11px] block">
+              Test (<InlineMath math="\beta" />) + Untested (<InlineMath math="M_u" />)
+            </span>
             <span className="text-[9px] text-emerald-700">
-              {simulationState ? `Mu = ${simulationState.material.untested_bits.M_u_bob}` : 'Ready to split'}
+              {simulationState ? (
+                <>
+                  <InlineMath math="M_u" /> = {simulationState.material.untested_bits.M_u_bob}
+                </>
+              ) : (
+                'Ready to split'
+              )}
             </span>
           </div>
         </div>
@@ -278,7 +292,9 @@ export default function Step02Material({
                   </span>
                 </div>
                 <div className="bg-[#F8FAF9] p-3 rounded-lg border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block font-semibold">BOB QBER (eB)</span>
+                  <span className="text-[10px] text-[#64748B] block font-semibold">
+                    BOB QBER (<InlineMath math="e_B" />)
+                  </span>
                   <span className="text-lg font-bold text-[#20C8A7]">
                     {(simulationState.measurement_statistics.qber_bob * 100).toFixed(2)}%
                   </span>
@@ -289,12 +305,15 @@ export default function Step02Material({
                   </span>
                 </div>
                 <div className="bg-[#F8FAF9] p-3 rounded-lg border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block font-semibold">UNTESTED BITS (Mu)</span>
+                  <span className="text-[10px] text-[#64748B] block font-semibold">
+                    UNTESTED BITS (<InlineMath math="M_u" />)
+                  </span>
                   <span className="text-lg font-bold text-[#263EDC]">
                     {simulationState.material.untested_bits.M_u_bob}
                   </span>
                   <span className="text-[10px] text-[#64748B] block mt-0.5">
-                    Test: {simulationState.material.test_bits.bob_test_count} (β={simulationState.material.test_bits.beta})
+                    Test: {simulationState.material.test_bits.bob_test_count} (
+                    <InlineMath math={`\\beta=${simulationState.material.test_bits.beta}`} />)
                   </span>
                 </div>
               </div>
@@ -322,15 +341,19 @@ export default function Step02Material({
               {/* Sample Bit Registers */}
               <div className="space-y-2">
                 <span className="text-[11px] font-mono text-[#64748B] block font-semibold">
-                  Sample Conclusive Registers (K_B &amp; K_C):
+                  Sample Conclusive Registers (<InlineMath math="K_B" /> &amp; <InlineMath math="K_C" />):
                 </span>
                 <div className="bg-[#071842] text-[#20C8A7] font-mono text-xs p-3 rounded-lg overflow-x-auto space-y-1">
                   <div>
-                    <span className="text-[#94A3B8]">Bob (KB):     </span>
+                    <span className="text-[#94A3B8]">
+                      Bob (<InlineMath math="K_B" />):{' '}
+                    </span>
                     {simulationState.material.bob_conclusive_bits.slice(0, 48)}...
                   </div>
                   <div>
-                    <span className="text-[#94A3B8]">Charlie (KC): </span>
+                    <span className="text-[#94A3B8]">
+                      Charlie (<InlineMath math="K_C" />):{' '}
+                    </span>
                     {simulationState.material.charlie_conclusive_bits.slice(0, 48)}...
                   </div>
                 </div>

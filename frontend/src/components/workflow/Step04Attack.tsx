@@ -25,6 +25,10 @@ import {
   Crosshair,
   Info,
 } from 'lucide-react';
+import { MathBlock, InlineMath, formatScientific } from '@/components/common/MathBlock';
+import DerivationTraceView from './attack/DerivationTraceView';
+import InterpretationView from './attack/InterpretationView';
+import ComputedOutputView from './attack/ComputedOutputView';
 
 interface Props {
   protocol: string;
@@ -116,6 +120,30 @@ function getApplicability(protocol: string, attackId: string): { status: 'QUANTI
   return { status: 'UNIMPLEMENTED', label: 'UNIMPLEMENTED' };
 }
 
+function renderMetaKey(key: string) {
+  const map: Record<string, string> = {
+    epsilon_1: '\\varepsilon_1',
+    epsilon_2: '\\varepsilon_2',
+    I_BC: 'I(B:C)',
+    S_c: 'S_C',
+    T_v: 'T_V',
+    T_a: 'T_A',
+    P_C_c: 'P_{C^c}',
+    M_u: 'M_u',
+    n_test: 'n_{\\text{test}}',
+    beta: '\\beta',
+    gamma: '\\gamma',
+    delta: '\\Delta',
+    gap: '\\text{gap}',
+    qber_obs: 'e_{\\text{obs}}',
+    qber_base: 'e_0',
+  };
+  if (map[key]) {
+    return <InlineMath math={map[key]} />;
+  }
+  return key;
+}
+
 export default function Step04Attack({
   protocol,
   simulationState,
@@ -198,7 +226,7 @@ export default function Step04Attack({
           {selectedAttack === 'INTERCEPT_RESEND' && (
             <div className="p-3 bg-white border border-[#CBD5E1] rounded-xl space-y-2">
               <div className="flex justify-between items-center text-[11px] font-mono text-[#475569]">
-                <span>Attack Intensity (γ):</span>
+                <span>Attack Intensity (<InlineMath math="\gamma" />):</span>
                 <strong className="text-[#071842]">{(intensity * 100).toFixed(0)}%</strong>
               </div>
               <input
@@ -360,15 +388,19 @@ export default function Step04Attack({
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-xs">
                       {Object.entries(attackResult.metadata).map(([key, val]) => (
                         <div key={key} className="bg-[#F8FAF9] p-2.5 rounded-lg border border-[#E2E8F0]">
-                          <span className="text-[9px] text-[#64748B] block truncate uppercase" title={key}>
-                            {key}
+                          <span className="text-[10px] text-[#64748B] block truncate uppercase" title={key}>
+                            {renderMetaKey(key)}
                           </span>
                           <span className="text-sm font-bold text-[#071842]">
-                            {typeof val === 'number'
-                              ? val < 0.0001
-                                ? val.toExponential(3)
-                                : val.toFixed(4)
-                              : String(val)}
+                            {typeof val === 'number' ? (
+                              val < 0.0001 && val > 0 ? (
+                                <InlineMath math={formatScientific(val, 3)} />
+                              ) : (
+                                val.toFixed(4)
+                              )
+                            ) : (
+                              String(val)
+                            )}
                           </span>
                         </div>
                       ))}
@@ -391,30 +423,48 @@ export default function Step04Attack({
                       </span>
                     </div>
 
-                    <div className="bg-[#071842] text-white p-4 rounded-xl font-mono text-xs space-y-3">
-                      <div className="text-[#20C8A7] font-bold text-xs bg-slate-800/80 p-2 rounded border border-slate-700">
-                        Formula: {attackResult.mathematical_model.formula}
+                    <div className="bg-[#071842] text-white p-4 rounded-xl font-mono text-xs space-y-4">
+                      {/* Formula Display Area */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-[#94A3B8] uppercase tracking-wider block">
+                            Security Bound Equation:
+                          </span>
+                          <span className="text-[10px] font-mono text-[#20C8A7] bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60">
+                            {selectedDef?.code || 'QDS'} FORMULATION
+                          </span>
+                        </div>
+                        <div className="bg-slate-900/90 p-4 rounded-lg border border-slate-800 text-center dark-math">
+                          <MathBlock
+                            formula={attackResult.mathematical_model.formula}
+                            ariaLabel={`${selectedDef?.name || 'Security Bound'} Formula`}
+                          />
+                        </div>
                       </div>
 
-                      <div className="space-y-1">
-                        <span className="text-[10px] text-[#94A3B8] uppercase tracking-wider block">
-                          Step-by-Step Derivation Trace:
-                        </span>
-                        <pre className="text-[11px] text-[#E2E8F0] whitespace-pre-wrap font-mono leading-relaxed bg-slate-900/60 p-3 rounded border border-slate-800">
-                          {attackResult.mathematical_model.intermediate_calculation}
-                        </pre>
+                      {/* Step-by-Step Derivation Trace */}
+                      {attackResult.mathematical_model.intermediate_calculation && (
+                        <DerivationTraceView
+                          intermediateCalculation={attackResult.mathematical_model.intermediate_calculation}
+                          attackId={selectedAttack}
+                        />
+                      )}
+
+                      {/* Computed Output */}
+                      <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                        <span className="text-slate-300 font-mono">Computed Output:</span>
+                        <ComputedOutputView
+                          finalResult={attackResult.mathematical_model.final_result}
+                          attackId={selectedAttack}
+                        />
                       </div>
 
-                      <div className="pt-2 border-t border-slate-700 flex items-center justify-between text-xs">
-                        <span className="text-slate-300">Computed Output:</span>
-                        <strong className="text-white font-mono bg-slate-800 px-2 py-1 rounded">
-                          {JSON.stringify(attackResult.mathematical_model.final_result)}
-                        </strong>
-                      </div>
-
-                      <div className="text-[11px] text-[#CBD5E1] italic bg-slate-800/40 p-2 rounded border border-slate-700/50">
-                        {attackResult.mathematical_model.interpretation}
-                      </div>
+                      {/* Clean Warning & Interpretation Banner */}
+                      {attackResult.mathematical_model.interpretation && (
+                        <InterpretationView
+                          interpretation={attackResult.mathematical_model.interpretation}
+                        />
+                      )}
                     </div>
                   </div>
                 )}

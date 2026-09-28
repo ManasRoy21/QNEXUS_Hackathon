@@ -28,6 +28,7 @@ import {
   Calculator,
   Flame,
 } from 'lucide-react';
+import { MathBlock, InlineMath } from '@/components/common/MathBlock';
 
 interface Props {
   protocol: string;
@@ -69,7 +70,7 @@ const REQUIRED_SWEEPS: SweepModeDef[] = [
     defaultStep: 0.1,
     attack: 'INTERCEPT_RESEND',
     pulseCount: 2000,
-    formula: 'e_obs = e_0 + 0.5·γ·(1 - 2·e_0), \\quad \\text{abort if } e_obs > T_a',
+    formula: 'e_{\\text{obs}} = e_0 + 0.5\\,\\gamma\\,(1 - 2e_0), \\quad \\text{abort if } e_{\\text{obs}} > T_A',
     description: 'Evaluates intercept-resend eavesdropping where Eve intercepts fraction γ of pulses, elevating observed QBER toward 50%.',
   },
   {
@@ -82,7 +83,7 @@ const REQUIRED_SWEEPS: SweepModeDef[] = [
     defaultStep: 1500,
     attack: 'FORGERY',
     pulseCount: 2000,
-    formula: '\\varepsilon_1 \\leq \\exp\\!\\left(-\\frac{(S_c - T_v)^2}{2 S_c} \\cdot P_C^c \\cdot M_u\\right)',
+    formula: '\\varepsilon_1 \\leq \\exp\\left(-\\frac{(S_C - T_V)^2}{2 S_C} \\cdot P_{C^c} \\cdot M_u\\right)',
     description: 'Demonstrates exponential suppression of existential forgery bound ε₁ as transmitted pulse count N and untested register M_u grow.',
   },
   {
@@ -107,7 +108,7 @@ const REQUIRED_SWEEPS: SweepModeDef[] = [
     defaultStep: 0.008,
     attack: 'REPUDIATION',
     pulseCount: 2000,
-    formula: '\\varepsilon_2 \\leq \\exp\\!\\left(-\\frac{2(T_v - T_a - \\Delta)^2 M_u^2 \\beta^2}{n_{\\text{test}}}\\right)',
+    formula: '\\varepsilon_2 \\leq \\exp\\left(-\\frac{2(T_V - T_A - \\Delta)^2 M_u^2 \\beta^2}{n_{\\text{test}}}\\right)',
     description: 'Examines signer repudiation probability ε₂ as the threshold gap (T_v - T_a) narrows when T_a increases toward T_v = 0.065.',
   },
   {
@@ -120,7 +121,7 @@ const REQUIRED_SWEEPS: SweepModeDef[] = [
     defaultStep: 0.02,
     attack: 'FORGERY',
     pulseCount: 3000,
-    formula: '\\varepsilon_1 \\leq \\exp\\!\\left(-\\frac{(S_c - T_v)^2}{2 S_c} \\cdot P_C^c \\cdot M_u\\right)',
+    formula: '\\varepsilon_1 \\leq \\exp\\left(-\\frac{(S_C - T_V)^2}{2 S_C} \\cdot P_{C^c} \\cdot M_u\\right)',
     description: 'Analyzes unforgeability guarantee ε₁ as verification threshold T_v approaches the minimal conclusive fraction S_c.',
   },
   {
@@ -132,7 +133,7 @@ const REQUIRED_SWEEPS: SweepModeDef[] = [
     defaultMax: 100,
     defaultStep: 20,
     pulseCount: 2000,
-    formula: 'QBER = \\frac{e_{\\text{det}} \\eta + 0.5 p_{\\text{dark}}}{\\eta + p_{\\text{dark}}}, \\quad \\eta = 10^{-\\alpha L / 10}',
+    formula: '\\text{QBER} = \\frac{e_{\\text{det}} \\eta + 0.5 p_{\\text{dark}}}{\\eta + p_{\\text{dark}}}, \\quad \\eta = 10^{-\\alpha L / 10}',
     description: 'Evaluates baseline physical channel error rate elevation as fiber attenuation reduces signal intensity relative to detector dark counts.',
   },
 ];
@@ -388,9 +389,14 @@ export default function Step05Sweeps({
                   </span>
                 </div>
 
-                <div className="bg-[#071842] text-white p-3 rounded-lg font-mono text-xs space-y-1">
-                  <span className="text-[#20C8A7] font-bold block text-[11px]">Formula Model:</span>
-                  <div className="text-[#E2E8F0]">{selectedDef.formula}</div>
+                <div className="bg-[#071842] text-white p-3.5 rounded-lg font-mono text-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#20C8A7] font-bold block text-[11px]">Formula Model:</span>
+                    <span className="text-[10px] text-slate-400 font-mono">KaTeX Rendered</span>
+                  </div>
+                  <div className="bg-slate-900/80 p-3 rounded border border-slate-800 text-center dark-math">
+                    <MathBlock formula={selectedDef.formula} ariaLabel={selectedDef.name} />
+                  </div>
                   <p className="text-[10px] text-[#94A3B8] pt-1">{selectedDef.description}</p>
                 </div>
               </div>

@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
+import { InlineMath } from '@/components/common/MathBlock';
 
 const HOEFFDING_CURVE_DATA = [
   { length: 8, security: 0.82, failureProb: '1.8e-1' },
@@ -29,9 +30,9 @@ export default function SecurityVsLengthCurve() {
           <h3 className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider">
             SECURITY CONVERGENCE VS LENGTH (L)
           </h3>
-          <p className="text-[11px] text-[#071842] font-mono font-semibold">
-            P(Failure) ≤ 2 exp(-2 · L · (e_rep - e_rob)²)
-          </p>
+          <div className="text-[11px] text-[#071842] py-0.5">
+            <InlineMath math="P(\text{Failure}) \leq 2 \exp\left(-2 L (e_{\text{rep}} - e_{\text{rob}})^2\right)" />
+          </div>
         </div>
         <span className="text-[11px] font-mono font-bold text-[#263EDC] bg-[#EFF4FF] px-2.5 py-0.5 rounded border border-[#CBD5E1]">
           Exponential Hoeffding Decay

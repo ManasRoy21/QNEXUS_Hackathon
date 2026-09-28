@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "katex/dist/katex.min.css";
 
 @tailwind base;
 @tailwind components;
@@ -152,3 +153,57 @@ h1, h2, h3, h4, h5, h6, .font-serif {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Mathematical Equation Typography & KaTeX Responsiveness */
+.math-block-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0.25rem;
+  scrollbar-width: thin;
+}
+
+.math-block-container .katex-display {
+  margin: 0.25rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  font-size: 1.1rem;
+}
+
+/* Ensure KaTeX symbols are crisp and inherit container colors */
+.dark-math .katex,
+.bg-\[\#071842\] .katex {
+  color: #f8fafc;
+}
+
+.dark-math .katex .mord,
+.dark-math .katex .mbin,
+.dark-math .katex .mrel,
+.dark-math .katex .mopen,
+.dark-math .katex .mclose,
+.dark-math .katex .mpunct,
+.bg-\[\#071842\] .katex .mord,
+.bg-\[\#071842\] .katex .mbin,
+.bg-\[\#071842\] .katex .mrel,
+.bg-\[\#071842\] .katex .mopen,
+.bg-\[\#071842\] .katex .mclose,
+.bg-\[\#071842\] .katex .mpunct {
+  color: #f8fafc;
+}
+
+.dark-math .katex .frac-line,
+.bg-\[\#071842\] .katex .frac-line {
+  border-bottom-color: #cbd5e1;
+}
+
+.inline-math-container {
+  display: inline-flex;
+  align-items: baseline;
+  vertical-align: baseline;
+}
+

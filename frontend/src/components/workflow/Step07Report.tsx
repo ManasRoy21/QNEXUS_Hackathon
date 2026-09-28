@@ -7,6 +7,7 @@ import {
   SweepResponse,
   StatisticalBoundResponse,
 } from '@/types/unifiedSimulation';
+import { MathBlock, InlineMath } from '@/components/common/MathBlock';
 import {
   FileText,
   Download,
@@ -547,8 +548,10 @@ export default function Step07Report({
                     {atk.mathematical_model && (
                       <div className="bg-[#071842] text-white rounded-lg p-3 space-y-2">
                         <p className="text-[10px] font-mono text-[#20C8A7] uppercase tracking-widest">07 — Mathematical Analysis</p>
-                        <div className="font-mono text-xs text-[#E2E8F0]">{atk.mathematical_model.formula}</div>
-                        <div className="text-[11px] text-[#94A3B8]">{atk.mathematical_model.interpretation}</div>
+                        <div className="bg-slate-900/80 p-2.5 rounded border border-slate-800 text-center dark-math">
+                          <MathBlock formula={atk.mathematical_model.formula} ariaLabel="Mathematical Analysis Formula" />
+                        </div>
+                        <div className="text-[11px] text-[#94A3B8] font-mono">{atk.mathematical_model.interpretation}</div>
                       </div>
                     )}
                   </div>
@@ -645,7 +648,12 @@ export default function Step07Report({
             <CollapsibleSection title="12 — Statistical Bounds" defaultOpen={true}>
               <SectionHeader num="12" title="Statistical Bounds" icon={Calculator} />
               <KVRow label="Method" value={bnd.method} highlight />
-              <KVRow label="Formula" value={bnd.formula} />
+              <div className="py-2 border-b border-[#E2E8F0]">
+                <span className="text-[10px] font-mono text-[#64748B] uppercase tracking-wider block mb-1">Formula</span>
+                <div className="bg-[#071842] text-white p-2.5 rounded-lg text-center dark-math">
+                  <MathBlock formula={bnd.formula} ariaLabel="Statistical Bound Formula" />
+                </div>
+              </div>
               <KVRow label="Final Bound" value={bnd.final_bound} highlight />
               {bnd.confidence !== undefined && (
                 <KVRow label="Confidence" value={(bnd.confidence * 100).toFixed(4) + '%'} />
