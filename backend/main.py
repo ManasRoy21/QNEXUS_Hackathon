@@ -33,10 +33,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS Middleware enabling seamless frontend connection from any local/remote host
+# CORS Middleware: configurable via ALLOWED_ORIGINS, supports Vercel preview & production deployments
+cors_origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",") if origin.strip() and "*" not in origin]
+if "*" in settings.ALLOWED_ORIGINS or settings.ENVIRONMENT == "development":
+    cors_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app" if cors_origins != ["*"] else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

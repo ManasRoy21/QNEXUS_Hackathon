@@ -90,7 +90,7 @@ export default function RootLayout({
             <div className="flex items-center space-x-3">
               <div className="hidden lg:flex items-center space-x-2 px-2.5 py-1 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[11px] font-mono text-[#475569]">
                 <span className="h-2 w-2 rounded-full bg-[#20C8A7] animate-pulse"></span>
-                <span>FastAPI :8000</span>
+                <span>FastAPI Engine</span>
               </div>
               <Link
                 href="/workflow"

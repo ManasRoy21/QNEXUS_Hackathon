@@ -53,7 +53,7 @@ export default function SimulationWorkflow() {
         }
       } catch (err: any) {
         console.error('Failed to load protocols:', err);
-        setError('Backend is currently unreachable on http://localhost:8000. Start the backend first.');
+        setError('Backend is currently unreachable. Please verify the FastAPI backend service is running.');
       }
     }
     loadProtocols();
