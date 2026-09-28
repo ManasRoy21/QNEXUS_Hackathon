@@ -5,7 +5,8 @@
       "framework": "nextjs"
     },
     "backend": {
-      "root": "backend"
+      "root": "backend",
+      "entrypoint": "main:app"
     }
   },
   "rewrites": [
@@ -18,13 +19,6 @@
     },
     {
       "source": "/health",
-      "destination": {
-        "type": "service",
-        "service": "backend"
-      }
-    },
-    {
-      "source": "/ws/stream(.*)?",
       "destination": {
         "type": "service",
         "service": "backend"
