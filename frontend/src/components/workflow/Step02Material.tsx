@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MaterialGenerationRequest, CanonicalSimulationState } from '@/types/unifiedSimulation';
 import { Play, Activity, Binary, ArrowRight, CheckCircle2, Shield, Info, Layers } from 'lucide-react';
 import { InlineMath } from '@/components/common/MathBlock';
+import VirtualOpticalLaboratory from './VirtualOpticalLaboratory';
 
 interface Props {
   protocol: string;
@@ -63,68 +64,29 @@ export default function Step02Material({
         </p>
       </div>
 
-      {/* ── Visual Quantum Pipeline Diagram ──────────────────────────────────── */}
-      <div className="bg-white border border-[#CBD5E1] rounded-xl p-4 shadow-xs">
-        <span className="text-[10px] font-mono font-bold text-[#64748B] uppercase tracking-wider block mb-3">
-          Quantum Distribution &amp; Sifting Pipeline
-        </span>
-        <div className="grid grid-cols-2 md:grid-cols-7 gap-2 text-center text-xs font-mono items-center">
-          <div className="p-2.5 rounded-lg bg-[#071842] text-white">
-            <span className="text-[9px] text-[#20C8A7] block font-bold">SOURCE</span>
-            <span className="font-bold text-[11px] block">Alice</span>
-            <span className="text-[9px] text-[#94A3B8]">Pulses: {pulseCount}</span>
-          </div>
-
-          <div className="hidden md:flex justify-center text-[#64748B]">
-            <ArrowRight className="w-4 h-4" />
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-[#F8FAF9] border border-[#CBD5E1]">
-            <span className="text-[9px] text-[#64748B] block font-bold">CHANNELS</span>
-            <span className="font-bold text-[#071842] text-[11px] block">{distanceKm} km Fiber</span>
-            <span className="text-[9px] text-[#64748B]">Loss: {(distanceKm * fiberAttenuation).toFixed(1)} dB</span>
-          </div>
-
-          <div className="hidden md:flex justify-center text-[#64748B]">
-            <ArrowRight className="w-4 h-4" />
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-[#F8FAF9] border border-[#CBD5E1]">
-            <span className="text-[9px] text-[#64748B] block font-bold">RECEIVERS</span>
-            <span className="font-bold text-[#071842] text-[11px] block">Bob &amp; Charlie</span>
-            <span className="text-[9px] text-[#64748B]">
-              {simulationState ? (
-                <>
-                  <InlineMath math="K_B" />: {simulationState.measurement_statistics.conclusive_count_bob} |{' '}
-                  <InlineMath math="K_C" />: {simulationState.measurement_statistics.conclusive_count_charlie}
-                </>
-              ) : (
-                'Conclusive detection'
-              )}
-            </span>
-          </div>
-
-          <div className="hidden md:flex justify-center text-[#64748B]">
-            <ArrowRight className="w-4 h-4" />
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
-            <span className="text-[9px] text-emerald-700 block font-bold">SIGNATURE MATERIAL</span>
-            <span className="font-bold text-[11px] block">
-              Test (<InlineMath math="\beta" />) + Untested (<InlineMath math="M_u" />)
-            </span>
-            <span className="text-[9px] text-emerald-700">
-              {simulationState ? (
-                <>
-                  <InlineMath math="M_u" /> = {simulationState.material.untested_bits.M_u_bob}
-                </>
-              ) : (
-                'Ready to split'
-              )}
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* ── Interactive 3D Virtual Quantum Optical Laboratory ────────────────── */}
+      <VirtualOpticalLaboratory
+        distanceKm={distanceKm}
+        fiberAttenuation={fiberAttenuation}
+        pulseCount={pulseCount}
+        simulationState={simulationState}
+        onGenerate={() =>
+          onGenerate({
+            protocol,
+            pulse_count: pulseCount,
+            distance_km: distanceKm,
+            fiber_attenuation: fiberAttenuation,
+            detector_efficiency: detectorEfficiency,
+            dark_count_rate: darkCountRate,
+            baseline_qber: baselineQber,
+            beta,
+            authentication_threshold: ta,
+            verification_threshold: tv,
+            seed,
+          })
+        }
+        loading={loading}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Left 1-col: Configuration form ──────────────────────────────────── */}
