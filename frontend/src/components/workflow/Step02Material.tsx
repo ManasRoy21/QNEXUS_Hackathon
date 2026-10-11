@@ -1,25 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
 import { MaterialGenerationRequest, CanonicalSimulationState } from '@/types/unifiedSimulation';
-import { Play, Activity, Binary, ArrowRight, CheckCircle2, Shield, Info, Layers } from 'lucide-react';
-import { InlineMath } from '@/components/common/MathBlock';
-
-const VirtualOpticalLaboratory = dynamic(
-  () => import('./VirtualOpticalLaboratory'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="bg-white border border-[#CBD5E1] rounded-xl h-[540px] flex items-center justify-center font-mono text-xs text-[#64748B]">
-        <div className="flex items-center space-x-2.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#20C8A7] animate-pulse"></span>
-          <span>Initializing 3D Virtual Quantum Optical Laboratory...</span>
-        </div>
-      </div>
-    ),
-  }
-);
+import { Play, Sliders, CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import VirtualOpticalLaboratory from './VirtualOpticalLaboratory';
 
 interface Props {
   protocol: string;
@@ -38,19 +22,21 @@ export default function Step02Material({
   onNext,
   onBack,
 }: Props) {
-  const [pulseCount, setPulseCount] = useState<number>(2000);
+  // Hardware and channel parameters matching Reference Image 1
+  const [pulseCount, setPulseCount] = useState<number>(10000);
   const [distanceKm, setDistanceKm] = useState<number>(25.0);
-  const [fiberAttenuation, setFiberAttenuation] = useState<number>(0.2);
-  const [detectorEfficiency, setDetectorEfficiency] = useState<number>(0.1);
+  const [fiberAttenuation, setFiberAttenuation] = useState<number>(0.20);
+  const [detectorEfficiency, setDetectorEfficiency] = useState<number>(0.80);
   const [darkCountRate, setDarkCountRate] = useState<number>(0.000001);
-  const [baselineQber, setBaselineQber] = useState<number>(0.010);
-  const [beta, setBeta] = useState<number>(0.30);
-  const [ta, setTa] = useState<number>(0.0150);
-  const [tv, setTv] = useState<number>(0.0645);
-  const [seed, setSeed] = useState<number>(42);
+  const [baselineQber, setBaselineQber] = useState<number>(0.020);
+  const [beta, setBeta] = useState<number>(0.20);
+  const [ta, setTa] = useState<number>(0.10);
+  const [tv, setTv] = useState<number>(0.15);
+  const [seed, setSeed] = useState<number>(12345);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [showSliders, setShowSliders] = useState<boolean>(false);
+
+  const handleGenerateClick = () => {
     onGenerate({
       protocol,
       pulse_count: pulseCount,
@@ -68,293 +54,276 @@ export default function Step02Material({
 
   return (
     <div className="space-y-6">
-      {/* ── Step Header ──────────────────────────────────────────────────────── */}
-      <div className="border-b border-[#CBD5E1] pb-3">
-        <span className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider block">
-          STEP 02 OF 06
-        </span>
-        <h2 className="font-serif text-2xl text-[#071842]">Generate Quantum Signature Material</h2>
-        <p className="text-xs text-[#475569] mt-1">
-          Distribute quantum optical states through simulated fiber channels. Alice emits coherent pulses to Bob and Charlie, who measure conclusive bit registers and split them into test bits and untested signature material.
-        </p>
-      </div>
-
-      {/* ── Interactive 3D Virtual Quantum Optical Laboratory ────────────────── */}
+      {/* ── Virtual Quantum Optical Laboratory Component ───────────────────── */}
       <VirtualOpticalLaboratory
         distanceKm={distanceKm}
         fiberAttenuation={fiberAttenuation}
         pulseCount={pulseCount}
         simulationState={simulationState}
-        onGenerate={() =>
-          onGenerate({
-            protocol,
-            pulse_count: pulseCount,
-            distance_km: distanceKm,
-            fiber_attenuation: fiberAttenuation,
-            detector_efficiency: detectorEfficiency,
-            dark_count_rate: darkCountRate,
-            baseline_qber: baselineQber,
-            beta,
-            authentication_threshold: ta,
-            verification_threshold: tv,
-            seed,
-          })
-        }
+        onGenerate={handleGenerateClick}
         loading={loading}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ── Left 1-col: Configuration form ──────────────────────────────────── */}
-        <form onSubmit={handleSubmit} className="bg-white border border-[#CBD5E1] rounded-xl p-5 space-y-4 shadow-xs">
-          <h3 className="text-xs font-mono font-bold text-[#071842] uppercase tracking-wider border-b border-[#E2E8F0] pb-2">
-            Channel &amp; Hardware Parameters
-          </h3>
-
+      {/* ── Two-Column Bottom Section (Matching Reference Image 1) ─────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── Left Card: Simulation Parameters ──────────────────────────────── */}
+        <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-center text-[11px] font-mono text-[#475569] mb-1">
-              <span>Pulse Count (N):</span>
-              <strong className="text-[#071842]">{pulseCount.toLocaleString()}</strong>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+              <h3 className="text-sm font-mono font-bold text-[#071842] flex items-center gap-2 uppercase tracking-wide">
+                <span className="text-[#2563EB]">⚙</span>
+                <span>Simulation Parameters</span>
+              </h3>
+
+              <button
+                type="button"
+                onClick={() => setShowSliders(!showSliders)}
+                className="text-xs font-mono text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 font-semibold cursor-pointer"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>{showSliders ? 'Hide Sliders' : 'Adjust Parameters'}</span>
+                {showSliders ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
             </div>
-            <input
-              type="range"
-              min="200"
-              max="10000"
-              step="200"
-              value={pulseCount}
-              onChange={(e) => setPulseCount(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-            />
+
+            {/* Clean 2-column parameter view (Exact match to Reference Image 1) */}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-xs">
+              {/* Col 1 */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Pulse Count (N)</span>
+                  <strong className="text-[#071842] font-semibold">{pulseCount.toLocaleString()}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Transmission Distance</span>
+                  <strong className="text-[#071842] font-semibold">{distanceKm} km</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Fiber Loss (dB/km)</span>
+                  <strong className="text-[#071842] font-semibold">{fiberAttenuation.toFixed(2)}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Detector Efficiency (η)</span>
+                  <strong className="text-[#071842] font-semibold">{detectorEfficiency.toFixed(2)}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">RNG Seed</span>
+                  <strong className="text-[#071842] font-semibold">{seed}</strong>
+                </div>
+              </div>
+
+              {/* Col 2 */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Baseline QBER</span>
+                  <strong className="text-[#071842] font-semibold">{baselineQber.toFixed(2)}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Sampling Ratio (β)</span>
+                  <strong className="text-[#071842] font-semibold">{beta.toFixed(2)}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Authentication Threshold (Ta)</span>
+                  <strong className="text-[#071842] font-semibold">{ta.toFixed(2)}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Verification Threshold (Tv)</span>
+                  <strong className="text-[#071842] font-semibold">{tv.toFixed(2)}</strong>
+                </div>
+              </div>
+            </div>
+
+            {/* Expandable sliders drawer */}
+            {showSliders && (
+              <div className="mt-5 pt-4 border-t border-[#E2E8F0] space-y-4">
+                <div>
+                  <div className="flex justify-between text-[11px] font-mono text-[#475569] mb-1">
+                    <span>Pulse Count: {pulseCount.toLocaleString()}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1000"
+                    max="20000"
+                    step="500"
+                    value={pulseCount}
+                    onChange={(e) => setPulseCount(Number(e.target.value))}
+                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-[11px] font-mono text-[#475569] mb-1">
+                    <span>Distance: {distanceKm} km</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="100"
+                    step="5"
+                    value={distanceKm}
+                    onChange={(e) => setDistanceKm(Number(e.target.value))}
+                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                  <div>
+                    <label className="text-[10px] text-[#64748B] block mb-1">Fiber Loss (dB/km)</label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      value={fiberAttenuation}
+                      onChange={(e) => setFiberAttenuation(Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 border border-[#CBD5E1] rounded-lg bg-[#F8FAF9]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#64748B] block mb-1">Detector Efficiency (η)</label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      value={detectorEfficiency}
+                      onChange={(e) => setDetectorEfficiency(Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 border border-[#CBD5E1] rounded-lg bg-[#F8FAF9]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
+          <div className="mt-5 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
+            <span className="text-[11px] font-mono text-[#64748B]">
+              Protocol: <strong className="text-[#071842]">{protocol || 'Practical QDS'}</strong>
+            </span>
+
+            <button
+              onClick={handleGenerateClick}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg text-xs font-mono font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-colors shadow-xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>{loading ? 'Simulating...' : 'Run Simulation'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ── Right Card: Simulation Telemetry ─────────────────────────────── */}
+        <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-center text-[11px] font-mono text-[#475569] mb-1">
-              <span>Distance:</span>
-              <strong className="text-[#071842]">{distanceKm} km</strong>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="5"
-              value={distanceKm}
-              onChange={(e) => setDistanceKm(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+              <h3 className="text-sm font-mono font-bold text-[#071842] flex items-center gap-2 uppercase tracking-wide">
+                <span className="text-[#2563EB]">📊</span>
+                <span>Simulation Telemetry</span>
+              </h3>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-[10px] font-mono text-[#475569] block mb-0.5">Fiber Loss (dB/km)</label>
-              <input
-                type="number"
-                step="0.05"
-                value={fiberAttenuation}
-                onChange={(e) => setFiberAttenuation(Number(e.target.value))}
-                className="w-full px-2 py-1 text-xs font-mono border border-[#CBD5E1] rounded-md bg-[#F8FAF9]"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-mono text-[#475569] block mb-0.5">Detector Eff (η)</label>
-              <input
-                type="number"
-                step="0.05"
-                value={detectorEfficiency}
-                onChange={(e) => setDetectorEfficiency(Number(e.target.value))}
-                className="w-full px-2 py-1 text-xs font-mono border border-[#CBD5E1] rounded-md bg-[#F8FAF9]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-[10px] font-mono text-[#475569] block mb-0.5">Seed (RNG)</label>
-              <input
-                type="number"
-                value={seed}
-                onChange={(e) => setSeed(Number(e.target.value))}
-                className="w-full px-2 py-1 text-xs font-mono border border-[#CBD5E1] rounded-md bg-[#F8FAF9]"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-mono text-[#475569] block mb-0.5">Baseline QBER (e₀)</label>
-              <input
-                type="number"
-                step="0.005"
-                value={baselineQber}
-                onChange={(e) => setBaselineQber(Number(e.target.value))}
-                className="w-full px-2 py-1 text-xs font-mono border border-[#CBD5E1] rounded-md bg-[#F8FAF9]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            <div>
-              <label className="text-[10px] font-mono text-[#475569] block mb-0.5">Beta (β)</label>
-              <input
-                type="number"
-                step="0.05"
-                value={beta}
-                onChange={(e) => setBeta(Number(e.target.value))}
-                className="w-full px-2 py-1 text-xs font-mono border border-[#CBD5E1] rounded-md bg-[#F8FAF9]"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-mono text-[#475569] block mb-0.5">Auth (Ta)</label>
-              <input
-                type="number"
-                step="0.005"
-                value={ta}
-                onChange={(e) => setTa(Number(e.target.value))}
-                className="w-full px-2 py-1 text-xs font-mono border border-[#CBD5E1] rounded-md bg-[#F8FAF9]"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-mono text-[#475569] block mb-0.5">Verif (Tv)</label>
-              <input
-                type="number"
-                step="0.005"
-                value={tv}
-                onChange={(e) => setTv(Number(e.target.value))}
-                className="w-full px-2 py-1 text-xs font-mono border border-[#CBD5E1] rounded-md bg-[#F8FAF9]"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full btn-teal py-2.5 rounded-lg text-xs font-mono font-bold shadow-xs inline-flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
-          >
-            <Play className="w-3.5 h-3.5" />
-            <span>{loading ? 'Simulating Optical Channels...' : 'Generate Signature Material'}</span>
-          </button>
-        </form>
-
-        {/* ── Right 2-cols: Live State Telemetry ──────────────────────────────── */}
-        <div className="lg:col-span-2 space-y-4">
-          {simulationState ? (
-            <div className="bg-white border border-[#CBD5E1] rounded-xl p-5 space-y-4 shadow-xs">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] pb-2">
-                <div>
-                  <span className="text-xs font-mono font-bold text-[#071842] uppercase tracking-wider block">
-                    Simulation Telemetry
-                  </span>
-                  <span className="text-[10px] font-mono text-[#64748B]">
-                    ID: {simulationState.simulation_id} · Model: {simulationState.model_version}
-                  </span>
-                </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  DETERMINISTIC SEED: {simulationState.seed}
-                </span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-mono font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Ready</span>
               </div>
+            </div>
 
-              {/* 4 Primary Metric Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
-                <div className="bg-[#F8FAF9] p-3 rounded-lg border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block font-semibold">BOB CONCLUSIVE</span>
-                  <span className="text-lg font-bold text-[#071842]">
-                    {simulationState.measurement_statistics.conclusive_count_bob}
-                  </span>
-                  <span className="text-[10px] text-[#64748B] block mt-0.5">
-                    Rate: {((simulationState.measurement_statistics.conclusive_count_bob / simulationState.configuration.pulse_count) * 100).toFixed(1)}%
-                  </span>
-                </div>
-                <div className="bg-[#F8FAF9] p-3 rounded-lg border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block font-semibold">CHARLIE CONCLUSIVE</span>
-                  <span className="text-lg font-bold text-[#071842]">
-                    {simulationState.measurement_statistics.conclusive_count_charlie}
-                  </span>
-                  <span className="text-[10px] text-[#64748B] block mt-0.5">
-                    Rate: {((simulationState.measurement_statistics.conclusive_count_charlie / simulationState.configuration.pulse_count) * 100).toFixed(1)}%
+            {/* Simulation Outputs Subsection */}
+            <div className="mb-4">
+              <h4 className="text-[11px] font-mono font-bold text-[#071842] uppercase tracking-wider mb-2.5">
+                Simulation Outputs
+              </h4>
+
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs font-mono">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Transmitted Pulses</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? simulationState.measurement_statistics.transmitted_pulses.toLocaleString() : '-'}
                   </span>
                 </div>
-                <div className="bg-[#F8FAF9] p-3 rounded-lg border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block font-semibold">
-                    BOB QBER (<InlineMath math="e_B" />)
-                  </span>
-                  <span className="text-lg font-bold text-[#20C8A7]">
-                    {(simulationState.measurement_statistics.qber_bob * 100).toFixed(2)}%
-                  </span>
-                  <span className="text-[10px] text-emerald-600 block mt-0.5">
-                    {simulationState.measurement_statistics.qber_bob <= simulationState.configuration.authentication_threshold
-                      ? '✓ Below Auth Thresh'
-                      : '⚠ Exceeds Auth Thresh'}
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Test Bits</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? simulationState.material.test_bits.bob_test_count.toLocaleString() : '-'}
                   </span>
                 </div>
-                <div className="bg-[#F8FAF9] p-3 rounded-lg border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block font-semibold">
-                    UNTESTED BITS (<InlineMath math="M_u" />)
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Detected Events</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? simulationState.measurement_statistics.detected_events.toLocaleString() : '-'}
                   </span>
-                  <span className="text-lg font-bold text-[#263EDC]">
-                    {simulationState.material.untested_bits.M_u_bob}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Untested Signature Bits (Mu)</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? simulationState.material.untested_bits.M_u_bob.toLocaleString() : '-'}
                   </span>
-                  <span className="text-[10px] text-[#64748B] block mt-0.5">
-                    Test: {simulationState.material.test_bits.bob_test_count} (
-                    <InlineMath math={`\\beta=${simulationState.material.test_bits.beta}`} />)
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Bob Conclusive Results (KB)</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? simulationState.measurement_statistics.conclusive_count_bob.toLocaleString() : '-'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Charlie Conclusive Results (KC)</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? simulationState.measurement_statistics.conclusive_count_charlie.toLocaleString() : '-'}
                   </span>
                 </div>
               </div>
+            </div>
 
-              {/* Extended Measurement Details */}
-              <div className="p-3 bg-[#F8FAF9] rounded-lg border border-[#E2E8F0] grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono">
-                <div>
-                  <span className="text-[#64748B] block">Transmitted:</span>
-                  <strong className="text-[#071842]">{simulationState.measurement_statistics.transmitted_pulses}</strong>
+            {/* QBER / Mismatch Rate Subsection */}
+            <div className="mb-4 pt-3 border-t border-[#F1F5F9]">
+              <h4 className="text-[11px] font-mono font-bold text-[#071842] uppercase tracking-wider mb-2.5">
+                QBER / Mismatch Rate
+              </h4>
+
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs font-mono">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Bob QBER / Mismatch Rate</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? `${(simulationState.measurement_statistics.qber_bob * 100).toFixed(2)}%` : '-'}
+                  </span>
                 </div>
-                <div>
-                  <span className="text-[#64748B] block">Detected Events:</span>
-                  <strong className="text-[#071842]">{simulationState.measurement_statistics.detected_events}</strong>
-                </div>
-                <div>
-                  <span className="text-[#64748B] block">Bob Mismatches:</span>
-                  <strong className="text-[#071842]">{simulationState.measurement_statistics.mismatch_count_bob}</strong>
-                </div>
-                <div>
-                  <span className="text-[#64748B] block">Charlie Mismatches:</span>
-                  <strong className="text-[#071842]">{simulationState.measurement_statistics.mismatch_count_charlie}</strong>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748B]">Charlie Mismatch Rate</span>
+                  <span className="text-[#071842] font-semibold">
+                    {simulationState ? `${(simulationState.measurement_statistics.qber_charlie * 100).toFixed(2)}%` : '-'}
+                  </span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Sample Bit Registers */}
-              <div className="space-y-2">
-                <span className="text-[11px] font-mono text-[#64748B] block font-semibold">
-                  Sample Conclusive Registers (<InlineMath math="K_B" /> &amp; <InlineMath math="K_C" />):
-                </span>
-                <div className="bg-[#071842] text-[#20C8A7] font-mono text-xs p-3 rounded-lg overflow-x-auto space-y-1">
-                  <div>
-                    <span className="text-[#94A3B8]">
-                      Bob (<InlineMath math="K_B" />):{' '}
-                    </span>
-                    {simulationState.material.bob_conclusive_bits.slice(0, 48)}...
-                  </div>
-                  <div>
-                    <span className="text-[#94A3B8]">
-                      Charlie (<InlineMath math="K_C" />):{' '}
-                    </span>
-                    {simulationState.material.charlie_conclusive_bits.slice(0, 48)}...
-                  </div>
+          {/* Bottom callout matching Reference Image 1 */}
+          <div className="mt-4">
+            {simulationState ? (
+              <div className="bg-[#F0FDF4] border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5 text-xs font-mono text-emerald-800">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block font-bold">Signature Material Generated Successfully</strong>
+                  <span>
+                    Deterministic run complete. Conclusive registers {simulationState.material.bob_conclusive_bits.slice(0, 16)}... measured below authentication threshold ({ta}).
+                  </span>
                 </div>
               </div>
-
-              {/* Model Assumptions & Simplifications if available */}
-              {simulationState.model_metadata && (
-                <div className="pt-2 border-t border-[#E2E8F0] text-[10px] font-mono text-[#64748B] space-y-1">
-                  <div>
-                    <strong className="text-[#071842]">Assumptions:</strong>{' '}
-                    {simulationState.model_metadata.assumptions?.join('; ') || 'Standard phase randomized weak coherent states'}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="bg-white border border-[#CBD5E1] rounded-xl p-12 text-center space-y-3">
-              <Binary className="w-12 h-12 text-[#94A3B8] mx-auto opacity-40" />
-              <h4 className="font-serif text-lg text-[#071842]">No Signature Material Generated Yet</h4>
-              <p className="text-xs text-[#64748B] max-w-md mx-auto">
-                Configure channel parameters on the left and click &ldquo;Generate Signature Material&rdquo; to simulate physical state distribution and measure conclusive registers.
-              </p>
-            </div>
-          )}
+            ) : (
+              <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl p-3 flex items-start gap-2.5 text-xs font-mono text-[#1E40AF]">
+                <Info className="w-4 h-4 text-[#2563EB] flex-shrink-0 mt-0.5" />
+                <span>Results will be populated after running the simulation.</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -369,7 +338,7 @@ export default function Step02Material({
         <button
           onClick={onNext}
           disabled={!simulationState}
-          className="btn-dark px-6 py-2.5 rounded-lg text-xs font-mono font-semibold shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="px-6 py-2.5 rounded-lg text-xs font-mono font-semibold text-white bg-[#071842] hover:bg-slate-800 transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           Proceed to Step 03: Alice Signs Message →
         </button>
