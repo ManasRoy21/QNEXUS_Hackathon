@@ -205,6 +205,7 @@ export default function VirtualOpticalLaboratory({
   const [isRotating, setIsRotating] = useState<boolean>(false);
   const [selectedComponent, setSelectedComponent] = useState<string>('am');
   const [highlightFilter, setHighlightFilter] = useState<'All' | 'Alice' | 'Bob' | 'Charlie'>('All');
+  const [webglError, setWebglError] = useState<string | null>(null);
 
   // Three.js internal references
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -341,30 +342,41 @@ export default function VirtualOpticalLaboratory({
   useEffect(() => {
     if (!mountRef.current) return;
     const container = mountRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight || 520;
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 540;
 
-    // 1. Scene & Background
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf1f5f9); // Clean laboratory light background
-    scene.fog = new THREE.FogExp2(0xf1f5f9, 0.015);
-    sceneRef.current = scene;
+    // 1. WebGL Renderer with graceful error handling
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    } catch (err: any) {
+      console.error('WebGL initialization error:', err);
+      setWebglError(err?.message || 'WebGL is not supported or hardware acceleration is disabled in your browser.');
+      return;
+    }
 
-    // 2. Camera
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
-    // Isometric-style elevated view matching reference images
-    camera.position.set(-2, 11, 17);
-    cameraRef.current = camera;
-
-    // 3. WebGL Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // 2. Scene & Background
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf1f5f9); // Clean laboratory light background
+    scene.fog = new THREE.FogExp2(0xf1f5f9, 0.015);
+    sceneRef.current = scene;
+
+    // 3. Camera
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
+    // Isometric-style elevated view matching reference images
+    camera.position.set(-2, 11, 17);
+    cameraRef.current = camera;
 
     // 4. OrbitControls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -1059,9 +1071,12 @@ export default function VirtualOpticalLaboratory({
           const tangent = item.path.getTangentAt(item.progress);
           item.mesh.position.copy(point);
 
-          // Align capsule to path direction
-          const axis = new THREE.Vector3(0, 1, 0);
-          item.mesh.quaternion.setFromUnitVectors(axis, tangent);
+          // Align capsule to path direction safely
+          if (tangent && tangent.lengthSq() > 0.0001) {
+            tangent.normalize();
+            const axis = new THREE.Vector3(0, 1, 0);
+            item.mesh.quaternion.setFromUnitVectors(axis, tangent);
+          }
         });
       }
 
@@ -1141,6 +1156,24 @@ export default function VirtualOpticalLaboratory({
   }, [handleResetCamera]);
 
   const currentCompData = COMPONENT_DETAILS[selectedComponent] || COMPONENT_DETAILS['am'];
+
+  if (webglError) {
+    return (
+      <div className="bg-white border border-[#CBD5E1] rounded-xl p-8 text-center space-y-4 shadow-xs">
+        <div className="inline-flex items-center space-x-2 text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold">
+          <Info className="w-4 h-4 text-rose-600" />
+          <span>WebGL Acceleration Required</span>
+        </div>
+        <h4 className="font-serif text-lg text-[#071842]">Cannot Initialize 3D Quantum Optical Laboratory</h4>
+        <p className="text-xs text-[#64748B] max-w-md mx-auto leading-relaxed">
+          {webglError}
+        </p>
+        <p className="text-[11px] font-mono text-[#94A3B8]">
+          Please enable WebGL hardware acceleration in your browser settings (chrome://settings/system) and reload.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border border-[#CBD5E1] rounded-xl shadow-xs overflow-hidden flex flex-col">

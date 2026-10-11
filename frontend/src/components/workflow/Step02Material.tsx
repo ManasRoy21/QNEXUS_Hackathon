@@ -1,10 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { MaterialGenerationRequest, CanonicalSimulationState } from '@/types/unifiedSimulation';
 import { Play, Activity, Binary, ArrowRight, CheckCircle2, Shield, Info, Layers } from 'lucide-react';
 import { InlineMath } from '@/components/common/MathBlock';
-import VirtualOpticalLaboratory from './VirtualOpticalLaboratory';
+
+const VirtualOpticalLaboratory = dynamic(
+  () => import('./VirtualOpticalLaboratory'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-white border border-[#CBD5E1] rounded-xl h-[540px] flex items-center justify-center font-mono text-xs text-[#64748B]">
+        <div className="flex items-center space-x-2.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#20C8A7] animate-pulse"></span>
+          <span>Initializing 3D Virtual Quantum Optical Laboratory...</span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 interface Props {
   protocol: string;
