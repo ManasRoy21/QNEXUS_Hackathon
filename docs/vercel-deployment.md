@@ -2,6 +2,8 @@
 
 Deploy from the repository root using Vercel Services. The root `vercel.json` builds `frontend/` as Next.js and `backend/` as FastAPI. `/api/v1/*`, `/simulation/*`, and `/health` route directly to Python; all other requests route to Next.js. Keep the Vercel project root at the repository root.
 
+The deployment project is `manas-projects-7e3cb99a/qnexus-hackathon`, connected to `ManasRoy21/QNEXUS_Hackathon`. Automatic Git deployments require a commit author associated with a Vercel project member; use the GitHub account's no-reply author address when keeping personal email private.
+
 ## Configuration
 
 - Use a current Vercel CLI with Services support, then `vercel login` and `vercel --prod`.
