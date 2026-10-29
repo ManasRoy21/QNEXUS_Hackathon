@@ -18,15 +18,16 @@ import Step04Attack from './Step04Attack';
 import Step05Sweeps from './Step05Sweeps';
 import Step06StatBounds from './Step06StatBounds';
 import Step07Report from './Step07Report';
-import { CheckCircle2, Lock, RotateCcw } from 'lucide-react';
+import { Check, Lock, RotateCcw, Layers, Radio, Fingerprint, ShieldAlert, BarChart3, Sigma, Loader2, AlertCircle } from 'lucide-react';
+import styles from './workflow.module.css';
 
 const STEPS = [
-  { num: 1, label: '01 PROTOCOL' },
-  { num: 2, label: '02 MATERIAL' },
-  { num: 3, label: '03 SIGNING' },
-  { num: 4, label: '04 ATTACK' },
-  { num: 5, label: '05 SWEEPS' },
-  { num: 6, label: '06 STAT BOUNDS' },
+  { num: 1, label: 'Protocol', detail: 'Choose a model', icon: Layers },
+  { num: 2, label: 'Material', detail: 'Prepare the channel', icon: Radio },
+  { num: 3, label: 'Signing', detail: 'Verify your message', icon: Fingerprint },
+  { num: 4, label: 'Attack', detail: 'Test disturbance', icon: ShieldAlert },
+  { num: 5, label: 'Sweeps', detail: 'Compare parameters', icon: BarChart3 },
+  { num: 6, label: 'Statistics', detail: 'Inspect the bounds', icon: Sigma },
 ];
 
 export default function SimulationWorkflow() {
@@ -76,7 +77,7 @@ export default function SimulationWorkflow() {
   // ── Gating logic ──────────────────────────────────────────────────────────────
   const stepUnlocked = (step: number): boolean => {
     if (step === 1) return true;
-    if (step === 2) return !!selectedProtocol;
+    if (step === 2) return protocols.some(protocol => protocol.id === selectedProtocol);
     // Steps 3–7 require material generated
     return !!simulationState;
   };
@@ -221,65 +222,34 @@ export default function SimulationWorkflow() {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
-      {/* ── Stepper bar ──────────────────────────────────────────────────────── */}
-      <div className="bg-white border border-[#CBD5E1] rounded-2xl p-4 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 flex-1 min-w-0">
-            {STEPS.map((s) => {
-              const isActive = s.num === currentStep;
-              const isDone = stepCompleted(s.num);
-              const isLocked = !stepUnlocked(s.num);
-
-              return (
-                <button
-                  key={s.num}
-                  onClick={() => goToStep(s.num)}
-                  disabled={isLocked}
-                  title={isLocked ? `Complete earlier steps first` : s.label}
-                  className={`relative py-2 px-2 rounded-lg text-[11px] font-mono font-bold text-center transition-all select-none
-                    ${isActive
-                      ? 'bg-[#071842] text-white shadow-sm'
-                      : isDone
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 cursor-pointer'
-                      : isLocked
-                      ? 'bg-[#F8FAF9] text-[#CBD5E1] cursor-not-allowed'
-                      : 'bg-[#F8FAF9] text-[#64748B] hover:bg-slate-100 cursor-pointer'
-                    }`}
-                >
-                  {isDone && !isActive && (
-                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 absolute top-1 right-1" />
-                  )}
-                  {isLocked && (
-                    <Lock className="w-2 h-2 text-[#CBD5E1] absolute top-1 right-1" />
-                  )}
-                  {s.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Reset */}
-          <button
-            onClick={handleReset}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-lg text-[11px] font-mono font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-all whitespace-nowrap flex-shrink-0"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>RESET WORKFLOW</span>
-          </button>
-        </div>
-      </div>
+    <div className={styles.console}>
+      <section className={styles.journey} aria-label="Six-step research workflow">
+        <div className={styles.journeyHeader}><div><span className={styles.overline}>EXPERIMENT WORKFLOW</span><span className={styles.progressCaption}>{STEPS.filter(step => stepCompleted(step.num)).length} of 6 milestones completed</span></div><button onClick={handleReset} disabled={loading} className={styles.resetButton}><RotateCcw size={13} /> Reset experiment</button></div>
+        <nav aria-label="Experiment steps"><ol className={styles.steps}>
+          {STEPS.map(s => {
+            const active = s.num === currentStep;
+            const done = stepCompleted(s.num);
+            const locked = !stepUnlocked(s.num);
+            const Icon = s.icon;
+            return <li key={s.num}><button onClick={() => goToStep(s.num)} disabled={locked || loading} aria-current={active ? 'step' : undefined} title={locked ? 'Generate material in step 02 to unlock this step' : s.detail} className={`${styles.step} ${active ? styles.activeStep : ''} ${done && !active ? styles.completedStep : ''}`}>
+              <span className={styles.stepTop}><span className={styles.stepIcon}>{done && !active ? <Check size={16} /> : <Icon size={16} />}</span><span>{String(s.num).padStart(2, '0')}</span>{locked && <Lock size={10} />}</span>
+              <strong>{s.label}</strong><small>{s.detail}</small>
+            </button></li>;
+          })}
+        </ol></nav>
+      </section>
+      <div className={styles.sessionBar} aria-live="polite"><div><span className={`${styles.statusDot} ${!protocols.length ? styles.statusOffline : ''}`} /><strong>{loading ? 'Processing experiment' : protocols.length ? 'Protocol API available' : error ? 'Protocol API unavailable' : 'Connecting to protocol API'}</strong>{loading && <Loader2 size={12} className={styles.spinner} />}</div><span>MODEL <b>{protocols.find(p => p.id === selectedProtocol)?.name || 'Awaiting selection'}</b></span><span>{simulationState ? <>RUN <b title={simulationState.simulation_id}>{simulationState.simulation_id.slice(0, 12)}…</b></> : 'No measurement run yet'}</span></div>
 
       {/* ── Global error ──────────────────────────────────────────────────────── */}
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs font-mono text-rose-800 flex items-start justify-between gap-4">
-          <div><strong>ERROR:</strong> {error}</div>
-          <button onClick={() => setError(null)} className="text-rose-500 hover:text-rose-700 text-lg leading-none">×</button>
+        <div className={styles.error} role="alert">
+          <AlertCircle size={18} /><div><strong>Unable to complete the request</strong><p>{typeof error === 'string' ? error : 'Check your inputs and try again.'}</p></div>
+          <button onClick={() => setError(null)} aria-label="Dismiss error">×</button>
         </div>
       )}
 
       {/* ── Step content ──────────────────────────────────────────────────────── */}
-      <div className="bg-[#F8FAF9] rounded-2xl p-6 border border-[#CBD5E1]">
+      <div className={styles.stepContent} id="workflow-step-content" aria-busy={loading}>
         {currentStep === 1 && (
           <Step01Protocol
             protocols={protocols}

@@ -170,7 +170,7 @@ export default function Step04Attack({
         <span className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider block">
           STEP 04 OF 06
         </span>
-        <h2 className="font-serif text-2xl text-[#071842]">Adversarial Threat Injection &amp; Security Verification</h2>
+        <h2 className="font-serif text-2xl text-[#071842]">Investigate an attack</h2>
         <p className="text-xs text-[#475569] mt-1">
           Execute protocol-isolated adversarial simulations. Quantitative models provide complete mathematical derivations, while unimplemented attacks return explicit notices without false claims.
         </p>

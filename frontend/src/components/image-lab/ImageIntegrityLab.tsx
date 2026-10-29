@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ArrowDownToLine, ArrowRight, Check, CheckCircle2, ChevronDown, Code2, FileImage, Fingerprint, FlaskConical, ImagePlus, Loader2, Play, RotateCcw, ScanLine, ShieldCheck, ShieldX, Sparkles, Upload, X } from 'lucide-react';
 import { Capabilities, ChannelConfig, ImageAsset, Receipt, Verification, downloadFile, downloadImage, editImage, imageLab, readImage, sampleImage } from '@/services/imageLab';
 import styles from './lab.module.css';
+import LabTabs from './LabTabs';
 
 const DEFAULT_CONFIG: ChannelConfig = { shots: 4096, seed: 42, noise: 0.01, interception: 0 };
 const percent = (value: number) => `${(value * 100).toFixed(2)}%`;
@@ -105,6 +106,7 @@ export default function ImageIntegrityLab() {
   const disabled = !!busy;
 
   return <div className={styles.lab}>
+    <LabTabs active="image" />
     <section className={styles.hero}>
       <div>
         <div className={styles.eyebrow}><span className={styles.dot} /> IMAGE INTEGRITY × QUANTUM EXPERIMENTS</div>

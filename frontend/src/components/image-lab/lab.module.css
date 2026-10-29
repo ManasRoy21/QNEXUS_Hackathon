@@ -1,4 +1,19 @@
 .lab { --ink:#172035; --muted:#687385; --line:#dfe4e8; --purple:#7260d8; color:var(--ink); font-family:Inter,system-ui,sans-serif; }
+.labTabs { display:flex; align-items:center; gap:6px; border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:12px; }
+.labTabs a { display:flex; align-items:center; gap:8px; border:1px solid transparent; border-radius:7px; padding:10px 15px; font-size:12px; color:#6c7688; }
+.labTabs a[aria-current=page] { background:#eeebf7; border-color:#d8d0e9; color:#705d9b; }
+.labTabs>span { margin-left:auto; color:#7b8595; font-size:10px; }
+.textEditor { display:block; width:100%; min-height:220px; resize:vertical; border:1px solid #dce1e8; border-radius:7px; background:#f8f9fc; color:#253045; font:13px/1.9 ui-monospace,monospace; padding:18px; }
+.textEditor:focus { outline:2px solid #a596c5; outline-offset:2px; }
+.textEditor:disabled { opacity:.6; }
+.textHint { font-size:9px; color:#788395; }
+.textDiff { border-top:1px solid var(--line); margin-top:18px; padding-top:14px; font-size:11px; }
+.textDiff>strong { font-weight:500; }
+.textDiff p { color:#788395; font-size:10px; line-height:1.8; margin:6px 0; overflow-wrap:anywhere; }
+.textDiff pre { white-space:pre-wrap; overflow-wrap:anywhere; font:11px/1.9 ui-monospace,monospace; background:#f8f9fc; padding:12px; border-radius:6px; margin-top:9px; }
+.textDiff mark { background:#ffe0cb; color:#8f4436; }
+.textDiff del { white-space:pre-wrap; background:#fff0ec; color:#a35c4b; }
+@media(max-width:640px) { .labTabs>span { display:none; }.textEditor { min-height:175px; font-size:12px; } }
 .lab button,.lab a,.lab input,.lab select { -webkit-tap-highlight-color:transparent; }
 .lab button { cursor:pointer; transition:background .18s,transform .18s; }
 .lab button:disabled { opacity:.42; cursor:not-allowed; }

@@ -14,6 +14,7 @@ See [backend design, equations, limits and API](docs/backend-engine.md). The old
 
 ## What works
 
+- `/text-lab`: exact UTF-8 message integrity alongside the image lab. Seal text and a real Qiskit channel experiment in an Ed25519 receipt, edit a separate candidate, verify, restore, and download the evidence. Includes clean/noisy/intercepted scenarios and a guided text demo.
 - Original/candidate image comparison with a bundled synthetic orbital image, or your own still PNG/JPEG/WebP.
 - SHA-256 fingerprints of decoded RGBA pixels, dimensions, file bytes, and an 8×8 tile grid.
 - Region replacement, one-pixel edits, alternate-file comparison, and restoration.
@@ -46,6 +47,16 @@ npm run demo
 ```
 
 Open [localhost:3000](http://localhost:3000). The API listens on `127.0.0.1:8000`; Next proxies `/api/v1` to it. Stop both services with Ctrl+C. `DEMO_PORT=3001 npm run demo` selects another frontend port.
+
+### Text integrity demo
+
+Open **Text lab** in the navigation, or visit `/text-lab`. Keep the sample message and **Clean channel**, then choose **Seal original text → Verify text**. Choose **Change one character → Verify text** to reject the candidate without re-signing. **Restore original → Verify text** accepts the original again. **Run guided text demo** executes and checks all three outcomes automatically, finishing with the restored text.
+
+Choose **Eve intercepts** or **Noisy channel**, reseal, and verify unchanged text to see matching text with failing channel policy. Changing settings or the original clears the previous receipt. Editing the candidate preserves it. Empty candidates can be checked as deletion tests; originals must contain 1–4,096 characters. Spaces, case, line breaks, and Unicode representation count: the backend hashes exact UTF-8 without normalization.
+
+The text lab reuses the workflow's message hashing, the image lab's Ed25519 issuer, and the same bounded Qiskit channel engine. Its self-contained receipt includes the message hash and full channel experiment, without requiring the research workflow's saved distribution run. Text is processed in memory and is not included in the downloaded JSON. The receipt does not conceal predictable text from guessing and is not proof of quantum transmission or complete QDS security.
+
+`POST /api/v1/text-lab/seal` accepts `{ "message": "...", "config": { "shots": 4096, "seed": 42, "noise": 0.01, "interception": 0 } }`. `POST /api/v1/text-lab/verify` accepts `{ "message": "candidate", "receipt": <seal response> }` and returns separate signature, message, and verifier channel checks. As with images, an API restart changes the default ephemeral issuer; old receipts require resealing.
 
 Or start them separately in two terminals:
 

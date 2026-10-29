@@ -1,40 +1,19 @@
-'use client';
-
-import React from 'react';
+import Link from 'next/link';
+import { ArrowUpRight, FlaskConical, FileText, ChevronRight } from 'lucide-react';
 import SimulationWorkflow from '@/components/workflow/SimulationWorkflow';
-import { ShieldCheck, Activity, Binary, ArrowRight } from 'lucide-react';
+import styles from '@/components/workflow/workflow.module.css';
 
 export default function WorkflowPage() {
-  return (
-    <div className="space-y-8">
-      {/* Institutional Header Banner */}
-      <div className="border-b border-[#CBD5E1] pb-5 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-[11px] font-mono text-emerald-800 mb-2">
-            <span className="w-2 h-2 rounded-full bg-[#20C8A7] animate-pulse"></span>
-            <span className="font-semibold uppercase tracking-wider">
-              CENTRAL UNIFIED SIMULATION PLATFORM (PHASES 1–5)
-            </span>
-          </div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-[#071842] tracking-tight">
-            Quantum Digital Signature Research Console
-          </h1>
-          <p className="text-xs sm:text-sm text-[#475569] mt-1 max-w-2xl leading-relaxed">
-            Explore state distribution, backend message evidence, measured interception, and statistical analysis. The message receipt uses classical cryptography; channel sampling does not establish full QDS non-repudiation.
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-2 text-xs font-mono text-[#64748B]">
-          <span className="px-2.5 py-1 rounded bg-white border border-[#CBD5E1] font-semibold text-[#071842]">
-            REPLAYABLE SEEDS
-          </span>
-          <span>·</span>
-          <span>SEED-DRIVEN</span>
-        </div>
+  return <div className={styles.workspace}>
+    <div className={styles.breadcrumb}><Link href="/">Workspace</Link><ChevronRight size={12} /><span>Research console</span></div>
+    <header className={styles.pageHeader}>
+      <div><div className={styles.eyebrow}><FlaskConical size={15} /> QUANTUM COMMUNICATION RESEARCH</div>
+        <h1>From protocol to evidence.</h1>
+        <p>A guided workspace to prepare quantum states, verify messages, and investigate channel disturbance.</p>
       </div>
-
-      {/* Unified 6-Step Workflow Component */}
-      <SimulationWorkflow />
-    </div>
-  );
+      <Link href="/text-lab" className={styles.quickLink}><FileText size={17} /><span>Just testing a message?<strong>Open the text lab <ArrowUpRight size={13} /></strong></span></Link>
+    </header>
+    <SimulationWorkflow />
+    <div className={styles.scopeNote}><FlaskConical size={15} /><p><strong>Understand the model.</strong> Channel experiments run locally in a simulator. Message receipts use classical cryptography. These results do not establish complete QDS security or non-repudiation.</p><Link href="/research">Research notes <ArrowUpRight size={13} /></Link></div>
+  </div>;
 }

@@ -12,11 +12,13 @@ from app.api.v1.endpoints import (
     simulation,
     image_lab,
     experiments,
+    text_lab,
 )
 
 api_router = APIRouter()
 api_router.include_router(experiments.router, tags=["experiments"])
 api_router.include_router(image_lab.router, prefix="/image-lab", tags=["image-lab"])
+api_router.include_router(text_lab.router, prefix="/text-lab", tags=["text-lab"])
 
 # Target Protocol-Aware Simulation Endpoints (REQ-QDS-SIM-2026-V1)
 api_router.include_router(simulation.router, prefix="/simulation", tags=["simulation"])

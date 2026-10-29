@@ -62,7 +62,7 @@ export default function Step06StatBounds({
   /* Expandable section states */
   const [showFormulaDetails, setShowFormulaDetails] = useState<boolean>(true);
   const [showCalculationSteps, setShowCalculationSteps] = useState<boolean>(true);
-  const [showAuditReport, setShowAuditReport] = useState<boolean>(true);
+  const [showAuditReport, setShowAuditReport] = useState<boolean>(false);
 
   /* Form states per mode */
   // 1. Hoeffding
@@ -197,7 +197,7 @@ export default function Step06StatBounds({
           STEP 06 OF 06
         </span>
         <h2 className="font-serif text-2xl text-[#071842]">
-          Statistical Security Bounds Engine
+          Evaluate statistical bounds
         </h2>
         <p className="text-xs text-[#475569] mt-1">
           Compute mathematically transparent statistical concentration and protocol security bounds.
@@ -837,17 +837,17 @@ export default function Step06StatBounds({
             </div>
             <div>
               <span className="text-[10px] font-mono font-bold text-[#64748B] uppercase tracking-wider block">
-                COMPREHENSIVE AUDIT REPORT
+                EXPERIMENT SUMMARY
               </span>
               <h3 className="font-serif font-bold text-xl text-[#071842]">
-                QDS Protocol Security Analysis &amp; Verification Certificate
+                Recorded configuration &amp; results
               </h3>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-flex items-center space-x-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>WORKFLOW VERIFIED</span>
+              <span>RUN RECORDED</span>
             </span>
           </div>
         </div>
@@ -868,7 +868,7 @@ export default function Step06StatBounds({
               <div>
                 <span className="text-[#64748B] block text-[10px]">MODEL ARCHITECTURE:</span>
                 <strong className="text-[#071842]">
-                  {protocol === 'practical_qds' ? 'Full Quantitative Physics Engine' : 'Qualitative Matrix Model'}
+                  {simulationState?.execution?.backend || 'No measurement engine'}
                 </strong>
               </div>
               <div>
@@ -941,9 +941,9 @@ export default function Step06StatBounds({
               <span className="uppercase tracking-wider">Tripartite Signing &amp; Verification Status</span>
             </div>
             <p className="text-[11px] text-[#475569] leading-relaxed">
-              Message digest verified across Bob and Charlie registers. Authentication Threshold Ta ={' '}
+              Review the message receipt and verifier decisions in step 03. Authentication threshold Ta ={' '}
               {((simulationState?.configuration.authentication_threshold ?? 0.015) * 100).toFixed(2)}%, Verification Threshold Tv ={' '}
-              {((simulationState?.configuration.verification_threshold ?? 0.0645) * 100).toFixed(2)}%. The threshold gap (Tv - Ta &gt; 0) guarantees signature transferability and non-repudiation.
+              {((simulationState?.configuration.verification_threshold ?? 0.0645) * 100).toFixed(2)}%. Threshold ordering alone does not prove transferability or non-repudiation.
             </p>
           </div>
 
@@ -956,15 +956,15 @@ export default function Step06StatBounds({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
               <div>
                 <span className="text-[#64748B] block text-[10px]">EVALUATED ATTACK:</span>
-                <strong>{attackResult?.attack || 'FORGERY'}</strong>
+                <strong>{attackResult?.attack || 'Not run'}</strong>
               </div>
               <div>
                 <span className="text-[#64748B] block text-[10px]">THREAT VERDICT:</span>
-                <strong className="text-emerald-700">{attackResult?.verdict || 'EVALUATION COMPLETE'}</strong>
+                <strong className="text-emerald-700">{attackResult?.verdict || 'Pending'}</strong>
               </div>
               <div>
                 <span className="text-[#64748B] block text-[10px]">MODEL STATUS:</span>
-                <strong>{attackResult?.model_status || 'QUANTITATIVE'}</strong>
+                <strong>{attackResult?.model_status || 'Awaiting result'}</strong>
               </div>
             </div>
           </div>
@@ -994,7 +994,7 @@ export default function Step06StatBounds({
             <p className="text-[11px] text-[#475569]">
               {sweepResult
                 ? `Simulated ${sweepResult.points.length} genuine empirical data points for parameter ${sweepResult.parameter}. Error rates and security metrics scale according to quantum optical transmission models.`
-                : 'Parameter sweep completed or available in Step 05.'}
+                : 'No parameter sweep recorded. Run one in step 05.'}
             </p>
           </div>
 
@@ -1020,10 +1020,10 @@ export default function Step06StatBounds({
             <div className="text-[11px] text-[#475569]">
               {hasCombinedBound ? (
                 <p>
-                  Total protocol security parameter <strong>ε_sec = ε₁ (forgery) + ε₂ (repudiation) = {combinedEps?.toExponential(4)}</strong>, guaranteeing information-theoretic unforgeability and non-repudiation with probability ≥ 1 − ε_sec.
+                  Total protocol security parameter <strong>ε_sec = ε₁ (forgery) + ε₂ (repudiation) = {combinedEps?.toExponential(4)}</strong>, under the analytical model assumptions. This is not a complete QDS security certificate.
                 </p>
               ) : (
-                <p>Protocol combined bound evaluated via formal Chernoff and bisection Sc formulation.</p>
+                <p>No combined bound recorded. Run a supported analysis to populate this section.</p>
               )}
             </div>
           </div>
@@ -1086,7 +1086,7 @@ export default function Step06StatBounds({
               onClick={onNext}
               className="btn-teal px-6 py-2.5 rounded-lg text-xs font-mono font-bold shadow-xs cursor-pointer flex items-center space-x-2"
             >
-              <span>View Final Security Report →</span>
+              <span>View final experiment report →</span>
             </button>
           )}
         </div>

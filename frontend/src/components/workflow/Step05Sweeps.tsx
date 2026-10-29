@@ -240,7 +240,7 @@ export default function Step05Sweeps({
         <span className="text-xs font-mono font-bold text-[#64748B] uppercase tracking-wider block">
           STEP 05 OF 06
         </span>
-        <h2 className="font-serif text-2xl text-[#071842]">Benchmarks &amp; Parameter Sweep Engine</h2>
+        <h2 className="font-serif text-2xl text-[#071842]">Compare experiment parameters</h2>
         <p className="text-xs text-[#475569] mt-1">
           Execute multi-point parameter sweeps against the genuine quantum simulation engine. Every point reuses the exact physical and attack simulation state.
         </p>

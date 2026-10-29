@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { MaterialGenerationRequest, CanonicalSimulationState } from '@/types/unifiedSimulation';
-import { Play, Sliders, CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, Sliders, CheckCircle2, Info, ChevronDown, ChevronUp, Activity } from 'lucide-react';
 import VirtualOpticalLaboratory from './VirtualOpticalLaboratory';
+import styles from './workflow.module.css';
 
 interface Props {
   protocol: string;
@@ -56,7 +57,8 @@ export default function Step02Material({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-wrap items-center gap-4 text-xs">
+      <div className={styles.sectionHeading}><div><span className={styles.overline}>02 / STATE DISTRIBUTION</span><h2>Prepare your experiment</h2><p>Choose a measurement engine, configure the channel, and generate material for the remaining steps.</p></div></div>
+      <div className={styles.materialToolbar}>
         <label htmlFor="measurement-backend" className="font-semibold">Measurement engine</label>
         <select id="measurement-backend" disabled={loading} value={measurementBackend} onChange={e => setMeasurementBackend(e.target.value as 'numpy' | 'qiskit_aer')} className="border rounded px-3 py-2 bg-white">
           <option value="qiskit_aer">Qiskit Aer · actual circuit outcomes</option>
@@ -82,7 +84,7 @@ export default function Step02Material({
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
               <h3 className="text-sm font-mono font-bold text-[#071842] flex items-center gap-2 uppercase tracking-wide">
-                <span className="text-[#2563EB]">⚙</span>
+                <Sliders size={15} className="text-[#547b91]" />
                 <span>Simulation Parameters</span>
               </h3>
 
@@ -231,7 +233,7 @@ export default function Step02Material({
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
               <h3 className="text-sm font-mono font-bold text-[#071842] flex items-center gap-2 uppercase tracking-wide">
-                <span className="text-[#2563EB]">📊</span>
+                <Activity size={15} className="text-[#547b91]" />
                 <span>Simulation Telemetry</span>
               </h3>
 

@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { Fingerprint, ArrowUpRight } from 'lucide-react';
 
 export const metadata = {
-  title: 'QDS Lab | Image Integrity & Quantum Experiments',
-  description: 'Seal an image, test for pixel changes, and explore quantum channel disturbance with a reproducible Qiskit Aer simulation.',
+  title: 'QDS Lab | Image & Text Integrity, Quantum Experiments',
+  description: 'Seal images or text, test for changes, and explore quantum channel disturbance with a reproducible Qiskit Aer simulation.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <header className="border-b border-[#e0e3e7] bg-[#f8f9fb]/95 sticky top-0 z-40 backdrop-blur-md">
       <div className="max-w-[1180px] mx-auto px-5 sm:px-8 h-[76px] flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3 text-[#253045]" aria-label="QDS Lab home"><span className="h-9 w-9 border border-[#d4cee3] bg-[#eeebf5] rounded-lg grid place-items-center text-[#8c79ae]"><Fingerprint size={21} strokeWidth={1.5} /></span><span className="font-grotesk font-semibold text-lg tracking-tight">QDS<span className="font-normal text-[#9296a4] ml-1">Lab</span><span className="hidden sm:block text-[8px] uppercase tracking-[1.8px] text-[#9c9eac] font-mono mt-0.5">Observe. Challenge. Verify.</span></span></Link>
-        <nav className="flex items-center gap-5 sm:gap-7 text-[11px] text-[#8b91a0]" aria-label="Main navigation"><Link className="hover:text-[#6e5e9c]" href="/image-lab">Image lab</Link><Link className="hover:text-[#6e5e9c]" href="/workflow">Research<span className="hidden sm:inline"> workflow</span></Link><Link className="hidden md:inline hover:text-[#6e5e9c]" href="/experiments">Experiment engine</Link><a className="hidden sm:flex items-center gap-1 border border-[#dfe2e8] rounded-md px-3 py-2 text-[#5f6879] hover:bg-white" href="https://github.com/krishnaher9232-cloud/QDS" target="_blank" rel="noreferrer">Source <ArrowUpRight size={12} /></a></nav>
+        <nav className="flex items-center gap-3 sm:gap-5 text-[11px] text-[#8b91a0]" aria-label="Main navigation"><Link className="hover:text-[#6e5e9c]" href="/image-lab">Image lab</Link><Link className="hover:text-[#6e5e9c]" href="/text-lab">Text lab</Link><Link className="hover:text-[#6e5e9c]" href="/workflow">Research<span className="hidden sm:inline"> workflow</span></Link><Link className="hidden md:inline hover:text-[#6e5e9c]" href="/experiments">Experiment engine</Link><a className="hidden sm:flex items-center gap-1 border border-[#dfe2e8] rounded-md px-3 py-2 text-[#5f6879] hover:bg-white" href="https://github.com/ManasRoy21/QNEXUS_Hackathon" target="_blank" rel="noreferrer">Source <ArrowUpRight size={12} /></a></nav>
       </div>
     </header>
     <main className="flex-1 w-full max-w-[1180px] mx-auto px-5 sm:px-8 py-7 sm:py-10">{children}</main>
