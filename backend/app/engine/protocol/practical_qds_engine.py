@@ -17,6 +17,8 @@ from uuid import uuid4
 import numpy as np
 
 from app.core.reference_parameters import REFERENCE_BASELINES
+from app.engine.quantum.pulse_sampler import sample_pulses
+from app.engine.analytics.parameter_estimation import estimate_remaining
 from app.schemas.canonical_models import (
     CanonicalSimulationState,
     GenerateMaterialRequest,
@@ -61,7 +63,12 @@ class PracticalQDSEngine:
         p_dark = request.dark_count_rate
         e0 = request.baseline_qber
         beta = request.beta
+        interception = request.interception_fraction
+        signal_error = e0 + (1 - 2 * e0) * interception / 4
+        execution = {"backend": request.measurement_backend, "interception_fraction": interception}
         msg = request.message or REFERENCE_BASELINES.DEFAULT_MESSAGE
+        model_version = ("four_state_aer_distribution_v2" if request.measurement_backend == "qiskit_aer"
+                         else REFERENCE_BASELINES.MODEL_VERSION)
 
         # ── 1. Optical Channel Propagation ──
         eta_ch = cls.calculate_transmittance(L, alpha)
@@ -84,8 +91,11 @@ class PracticalQDSEngine:
         # Bob raw measurement bits:
         # If signal arrived, bit is alice_bit with e0 probability of flip.
         # If pure dark count, bit is randomly 0 or 1.
-        bob_flip = rng.random(size=N) < e0
+        bob_flip = rng.random(size=N) < signal_error
         bob_signal_bits = np.where(bob_flip, 1 - alice_bits, alice_bits)
+        if request.measurement_backend == "qiskit_aer":
+            bob_signal_bits, execution["bob"] = sample_pulses(
+                alice_bits, alice_bases, bob_bases, e0, interception, (seed + 101) % (2**31 - 1))
         bob_dark_bits = rng.integers(0, 2, size=N, dtype=np.int8)
         bob_measured = np.where(bob_arrival, bob_signal_bits, bob_dark_bits)
 
@@ -106,8 +116,11 @@ class PracticalQDSEngine:
         charlie_dark = rng.random(size=N) < p_dark
         charlie_click = charlie_arrival | charlie_dark
 
-        charlie_flip = rng.random(size=N) < e0
+        charlie_flip = rng.random(size=N) < signal_error
         charlie_signal_bits = np.where(charlie_flip, 1 - alice_bits, alice_bits)
+        if request.measurement_backend == "qiskit_aer":
+            charlie_signal_bits, execution["charlie"] = sample_pulses(
+                alice_bits, alice_bases, charlie_bases, e0, interception, (seed + 211) % (2**31 - 1))
         charlie_dark_bits = rng.integers(0, 2, size=N, dtype=np.int8)
         charlie_measured = np.where(charlie_arrival, charlie_signal_bits, charlie_dark_bits)
 
@@ -139,6 +152,25 @@ class PracticalQDSEngine:
         charlie_perm = rng.permutation(k_c) if k_c > 0 else np.array([], dtype=int)
         charlie_test_idx = charlie_perm[:n_test_charlie] if n_test_charlie > 0 else np.array([], dtype=int)
         charlie_untested_idx = charlie_perm[n_test_charlie:] if m_u_charlie > 0 else np.array([], dtype=int)
+
+        estimation = {
+            "method": "Serfling: uniform test sampling without replacement",
+            "scope": "Mismatch-rate estimation only; not a forgery or non-repudiation proof.",
+            "joint_failure_probability": request.estimation_failure_probability,
+            "bob": estimate_remaining(bob_conclusive_bits_arr != alice_bits_for_bob, bob_test_idx,
+                request.authentication_threshold, request.estimation_failure_probability / 2),
+            "charlie": estimate_remaining(charlie_conclusive_bits_arr != alice_bits_for_charlie, charlie_test_idx,
+                request.verification_threshold, request.estimation_failure_probability / 2),
+        }
+        # Expected error conditioned on a click. A signal arrival takes priority
+        # over a simultaneous dark count, matching the simulation's event model.
+        execution["expected_qber_given_click"] = (
+            (p_arrival * signal_error + (1 - p_arrival) * p_dark * 0.5) / p_click if p_click else None)
+        execution["loss_model"] = "Independent erasure and detector events sampled with NumPy; signal measurements use the selected backend."
+        execution["transcript_sha256"] = hashlib.sha256(
+            alice_bits.tobytes() + alice_bases.tobytes() + bob_bases.tobytes() + charlie_bases.tobytes()
+            + bob_measured.tobytes() + charlie_measured.tobytes() + bob_click.tobytes() + charlie_click.tobytes()
+        ).hexdigest()
 
         # String representations of conclusive bits
         bob_conclusive_str = "".join(str(b) for b in bob_conclusive_bits_arr)
@@ -238,6 +270,8 @@ class PracticalQDSEngine:
 
         # ── 8. Advisory Warnings & Health Checks ──
         warnings: list[str] = []
+        if not k_b or not k_c:
+            warnings.append("No conclusive data on at least one channel: zero reported QBER is undefined, not evidence of a clean channel. Consult parameter_estimation.")
         if qber_bob > request.authentication_threshold:
             warnings.append(
                 f"Bob observed QBER ({qber_bob * 100:.2f}%) exceeds Authentication Threshold Ta ({request.authentication_threshold * 100:.2f}%). Signature will be rejected under baseline noise."
@@ -257,6 +291,8 @@ class PracticalQDSEngine:
 
         # ── 9. Assemble Canonical State ──
         config = SimulationConfiguration(
+            measurement_backend=request.measurement_backend,
+            interception_fraction=interception,
             pulse_count=N,
             distance_km=L,
             fiber_attenuation=alpha,
@@ -279,6 +315,8 @@ class PracticalQDSEngine:
                 "beta": beta,
                 "bob_test_count": n_test_bob,
                 "charlie_test_count": n_test_charlie,
+                "bob_test_errors": estimation["bob"]["test_errors"],
+                "charlie_test_errors": estimation["charlie"]["test_errors"],
                 "sample_test_indices_bob": bob_test_idx[:16].tolist() if len(bob_test_idx) > 0 else [],
                 "sample_test_indices_charlie": charlie_test_idx[:16].tolist() if len(charlie_test_idx) > 0 else [],
             },
@@ -316,9 +354,9 @@ class PracticalQDSEngine:
 
         metadata = ModelMetadata(
             model_name=REFERENCE_BASELINES.MODEL_NAME,
-            model_version=REFERENCE_BASELINES.MODEL_VERSION,
+            model_version=model_version,
             model_type="SIMULATION MODEL",
-            disclaimer="SIMULATION MODEL — Derived from mathematical and Monte Carlo optical channel models, not experimental laboratory hardware.",
+            disclaimer=f"SIMULATION MODEL — Measurements: {request.measurement_backend}; erasure/detector sampling: NumPy. Not laboratory hardware or a complete QDS security proof.",
             assumptions=list(REFERENCE_BASELINES.ASSUMPTIONS),
             simplifications=list(REFERENCE_BASELINES.SIMPLIFICATIONS),
         )
@@ -329,7 +367,7 @@ class PracticalQDSEngine:
             simulation_id=sim_id,
             seed=seed,
             protocol="practical_qds",
-            model_version=REFERENCE_BASELINES.MODEL_VERSION,
+            model_version=model_version,
             timestamp=round(time.time(), 3),
             configuration=config,
             material=material,
@@ -339,4 +377,6 @@ class PracticalQDSEngine:
             model_metadata=metadata,
             trace=trace_data,
             warnings=warnings,
+            execution=execution,
+            parameter_estimation=estimation,
         )

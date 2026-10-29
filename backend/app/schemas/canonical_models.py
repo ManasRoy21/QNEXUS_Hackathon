@@ -6,12 +6,14 @@ Conforms to the Developer Specification (REQ-QDS-SIM-2026-V1):
   - Enforces physical parameter boundary validations.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field, model_validator
+from typing import Any, Dict, List, Optional, Literal
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 
 
 class SimulationConfiguration(BaseModel):
     """Configurable physical and protocol parameters."""
+    measurement_backend: Literal["numpy", "qiskit_aer"] = "numpy"
+    interception_fraction: float = Field(default=0, ge=0, le=1)
 
     pulse_count: int = Field(
         ...,
@@ -186,10 +188,16 @@ class CanonicalSimulationState(BaseModel):
     model_metadata: ModelMetadata
     trace: Dict[str, Any] = Field(default_factory=dict, description="Step-by-step mathematical traceability and origin for all major metrics")
     warnings: List[str] = Field(default_factory=list, description="Advisory warnings or threshold alerts")
+    execution: Dict[str, Any] = Field(default_factory=dict)
+    parameter_estimation: Dict[str, Any] = Field(default_factory=dict)
 
 
 class GenerateMaterialRequest(BaseModel):
     """Request payload for POST /api/v1/simulation/generate-material."""
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    measurement_backend: Literal["numpy", "qiskit_aer"] = "numpy"
+    interception_fraction: float = Field(default=0, ge=0, le=1)
+    estimation_failure_probability: float = Field(default=0.01, gt=0, lt=1)
 
     protocol: str = Field("practical_qds", description="Target protocol identifier")
     pulse_count: int = Field(
@@ -248,15 +256,20 @@ class GenerateMaterialRequest(BaseModel):
     )
     seed: Optional[int] = Field(
         None,
+        ge=0,
+        le=2**31 - 1,
         description="Optional deterministic PRNG integer seed. If omitted, a random seed is selected and returned.",
     )
     message: Optional[str] = Field(
         "Transfer ₹ 10,000 to Account #8849-B",
+        max_length=4096,
         description="Plaintext message for signature creation",
     )
 
     @model_validator(mode="after")
     def validate_threshold_ordering(self) -> "GenerateMaterialRequest":
+        if self.measurement_backend == "qiskit_aer" and self.pulse_count > 100_000:
+            raise ValueError("Qiskit runs are limited to 100,000 pulses; use NumPy for larger statistical studies.")
         if self.authentication_threshold >= self.verification_threshold:
             raise ValueError(
                 f"Authentication threshold Ta ({self.authentication_threshold}) "

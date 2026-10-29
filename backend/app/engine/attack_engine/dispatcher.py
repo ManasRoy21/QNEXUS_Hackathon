@@ -173,6 +173,13 @@ def _route(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _handle_practical_qds(request, state, canonical_attack, entry):
+    if state.configuration.measurement_backend == "qiskit_aer":
+        if canonical_attack in (CanonicalAttackID.INTERCEPT_RESEND, CanonicalAttackID.EAVESDROPPING):
+            from app.engine.attack_engine.aer_attack import evaluate
+            return evaluate(request, state)
+        return SimulationModelNotAvailableResponse(
+            simulation_id=request.simulation_id, protocol="practical_qds", attack=canonical_attack.value,
+            applicable=entry.applicable, reason="The Aer distribution engine implements measured intercept/resend trials. It does not derive forgery or non-repudiation guarantees from correlated bit samples.")
     delta = float(request.parameters.get("delta", None) or 0.0) or None
 
     if canonical_attack == CanonicalAttackID.FORGERY:

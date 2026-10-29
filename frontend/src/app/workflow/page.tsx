@@ -20,13 +20,13 @@ export default function WorkflowPage() {
             Quantum Digital Signature Research Console
           </h1>
           <p className="text-xs sm:text-sm text-[#475569] mt-1 max-w-2xl leading-relaxed">
-            Execute the complete 6-step lifecycle: Protocol selection, physical channel state distribution, Alice OTP signing, protocol-aware adversarial injection, multi-point parameter sweeps, and finite-key statistical bounds.
+            Explore state distribution, backend message evidence, measured interception, and statistical analysis. The message receipt uses classical cryptography; channel sampling does not establish full QDS non-repudiation.
           </p>
         </div>
 
         <div className="flex items-center space-x-2 text-xs font-mono text-[#64748B]">
           <span className="px-2.5 py-1 rounded bg-white border border-[#CBD5E1] font-semibold text-[#071842]">
-            100% REPRODUCIBLE
+            REPLAYABLE SEEDS
           </span>
           <span>·</span>
           <span>SEED-DRIVEN</span>

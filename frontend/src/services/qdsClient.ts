@@ -12,11 +12,19 @@ import {
   SweepResponse,
   StatisticalBoundResponse,
   StatisticalBoundRequest,
+  MessageReceipt,
+  MessageVerification,
 } from '@/types/unifiedSimulation';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export const qdsClient = {
+  async signRunMessage(id: string, message: string): Promise<MessageReceipt> {
+    return (await axios.post(`${API_BASE_URL}/runs/${encodeURIComponent(id)}/sign-message`, { message })).data;
+  },
+  async verifyRunMessage(message: string, receipt: MessageReceipt): Promise<MessageVerification> {
+    return (await axios.post(`${API_BASE_URL}/verify-message`, { message, receipt })).data;
+  },
   /** Fetch catalog of all supported and theoretical QDS protocols */
   async getProtocols(): Promise<{ protocols: ProtocolEntry[]; total_count: number }> {
     const res = await axios.get(`${API_BASE_URL}/protocols`);

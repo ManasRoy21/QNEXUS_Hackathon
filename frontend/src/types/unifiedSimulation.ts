@@ -6,6 +6,16 @@
 
 export type ProtocolCategory = 'experimental_hardware' | 'theoretical';
 
+export interface MessageReceipt {
+  algorithm: 'Ed25519';
+  signature: string;
+  manifest: { receipt_id: string; issued_at: string; key_id: string; simulation_id: string; message_sha256: string; transcript_sha256: string; configuration_sha256: string; version: string };
+}
+export interface MessageVerification {
+  verdict: string; signature_valid: boolean; message_matches: boolean; evidence_matches: boolean;
+  verifiers: { verifier: string; status: string; sampling_decision: string; remaining_error_upper_bound: number | null }[];
+}
+
 export interface ProtocolEntry {
   id: string;
   name: string;
@@ -23,6 +33,8 @@ export interface ProtocolEntry {
 }
 
 export interface MaterialGenerationRequest {
+  measurement_backend?: 'numpy' | 'qiskit_aer';
+  interception_fraction?: number;
   protocol: string;
   pulse_count: number;
   distance_km: number;
@@ -37,6 +49,8 @@ export interface MaterialGenerationRequest {
 }
 
 export interface CanonicalSimulationState {
+  execution?: Record<string, any>;
+  parameter_estimation?: Record<string, any>;
   simulation_id: string;
   seed: number;
   protocol: string;

@@ -33,11 +33,13 @@ export default function Step02Material({
   const [ta, setTa] = useState<number>(0.10);
   const [tv, setTv] = useState<number>(0.15);
   const [seed, setSeed] = useState<number>(12345);
+  const [measurementBackend, setMeasurementBackend] = useState<'numpy' | 'qiskit_aer'>('qiskit_aer');
 
   const [showSliders, setShowSliders] = useState<boolean>(false);
 
   const handleGenerateClick = () => {
     onGenerate({
+      measurement_backend: measurementBackend,
       protocol,
       pulse_count: pulseCount,
       distance_km: distanceKm,
@@ -54,6 +56,15 @@ export default function Step02Material({
 
   return (
     <div className="space-y-6">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-wrap items-center gap-4 text-xs">
+        <label htmlFor="measurement-backend" className="font-semibold">Measurement engine</label>
+        <select id="measurement-backend" disabled={loading} value={measurementBackend} onChange={e => setMeasurementBackend(e.target.value as 'numpy' | 'qiskit_aer')} className="border rounded px-3 py-2 bg-white">
+          <option value="qiskit_aer">Qiskit Aer · actual circuit outcomes</option>
+          <option value="numpy">NumPy · statistical approximation</option>
+        </select>
+        <a href="/experiments" className="text-[#8d77b0] ml-auto">Run repeated attack trials ↗</a>
+        {simulationState?.execution?.backend && <p className="w-full text-slate-500">Last result: {simulationState.execution.backend}. Sampling decisions: Bob {simulationState.parameter_estimation?.bob?.decision}; Charlie {simulationState.parameter_estimation?.charlie?.decision}. These estimate mismatch rates, not complete QDS security.</p>}
+      </div>
       {/* ── Virtual Quantum Optical Laboratory Component ───────────────────── */}
       <VirtualOpticalLaboratory
         distanceKm={distanceKm}
@@ -313,7 +324,7 @@ export default function Step02Material({
                 <div>
                   <strong className="block font-bold">Signature Material Generated Successfully</strong>
                   <span>
-                    Deterministic run complete. Conclusive registers {simulationState.material.bob_conclusive_bits.slice(0, 16)}... measured below authentication threshold ({ta}).
+                    Measurement run saved. Bob sampling decision: {simulationState.parameter_estimation?.bob?.decision || 'not available'}; Charlie: {simulationState.parameter_estimation?.charlie?.decision || 'not available'}. Generating material does not certify a secure channel.
                   </span>
                 </div>
               </div>

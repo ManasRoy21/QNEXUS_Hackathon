@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+ <defs>
+  <linearGradient id="sky" x2=".4" y2="1"><stop stop-color="#070e26"/><stop offset="1" stop-color="#243352"/></linearGradient>
+  <radialGradient id="earth" cx=".65" cy=".1" r=".9"><stop stop-color="#9dddcf"/><stop offset=".3" stop-color="#3a8995"/><stop offset=".7" stop-color="#183e62"/><stop offset="1" stop-color="#0a1734"/></radialGradient>
+  <linearGradient id="rim"><stop stop-color="#4f89c1" stop-opacity="0"/><stop offset=".5" stop-color="#a7ecf0"/><stop offset="1" stop-color="#5e65b5" stop-opacity="0"/></linearGradient>
+  <clipPath id="planet"><ellipse cx="580" cy="670" rx="690" ry="485" transform="rotate(-12 580 670)"/></clipPath>
+  <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#a4c9dc" stroke-opacity=".08"/></pattern>
+ </defs>
+ <rect width="960" height="600" fill="url(#sky)"/>
+ <g fill="#c9dfec" opacity=".65"><circle cx="73" cy="81" r="1.5"/><circle cx="210" cy="152" r="1"/><circle cx="380" cy="58" r="1.5"/><circle cx="570" cy="108" r="1"/><circle cx="815" cy="51" r="1.5"/><circle cx="895" cy="160" r="1"/><circle cx="131" cy="255" r="1"/><circle cx="704" cy="76" r="1"/><circle cx="430" cy="140" r="1"/></g>
+ <ellipse cx="580" cy="670" rx="690" ry="485" transform="rotate(-12 580 670)" fill="url(#earth)" stroke="url(#rim)" stroke-width="9"/>
+ <g clip-path="url(#planet)">
+  <path d="M340 218l110 41 31 48 94 18 27 62-49 43-75-18-53 38-80-48-12-55-81-35zM716 231l84 35 38 63-37 57-12 73-54 25-50-72 27-48-52-62zM183 401l74 18 12 74-40 39-50-39-57 11-14-52z" fill="#71af97" opacity=".7"/>
+  <g fill="none" stroke="#c6e7d9" stroke-width="2" opacity=".18"><path d="M180 420q130-120 300-70t450-10M135 470q160-110 350-70t450-10M110 520q210-100 400-70t450-10M250 290q130-30 260 20t360 10M300 260q130-30 260 20t300 10"/><ellipse cx="540" cy="480" rx="240" ry="170"/><ellipse cx="540" cy="480" rx="190" ry="140"/><ellipse cx="540" cy="480" rx="140" ry="100"/></g>
+  <g fill="none" stroke="#effffc" stroke-linecap="round" opacity=".5"><path d="M215 320q100-63 180-15t170 9M550 271q70-38 130-3t128 3M362 459q83-45 167-12t146-10M730 507q70-42 150-30" stroke-width="12"/><path d="M204 341q100-53 189-12t165 4M559 290q60-22 132 4M375 480q95-40 179-3" stroke-width="5"/></g>
+ </g>
+ <rect width="960" height="600" fill="url(#grid)"/>
+ <g fill="none" stroke="#b9f5e4" stroke-width="1.4"><path d="M540 232h-18v18m190-18h18v18M522 393v18h18m172 0h18v-18"/><circle cx="625" cy="320" r="36"/><path d="M625 275v22m0 46v22m-45-45h22m46 0h22"/></g>
+ <g font-family="monospace" fill="#d5ecec"><text x="40" y="48" font-size="15" letter-spacing="3">ORBITAL SURVEY / 042</text><text x="40" y="73" font-size="11" opacity=".6">SYNTHETIC IMAGE · DEMONSTRATION ASSET</text><text x="750" y="48" font-size="12">FRAME 0086</text><text x="40" y="555" font-size="12">ALICE / SOURCE CAPTURE</text><text x="40" y="575" font-size="10" opacity=".6">960 × 600 · RGB COMPOSITE</text><text x="748" y="555" font-size="11">TARGET REGION</text><text x="748" y="575" font-size="10" opacity=".6">INTEGRITY CHECK</text></g>
+ <path d="M744 542h148M40 520h55" stroke="#b9f5e4" stroke-opacity=".5"/>
+</svg>

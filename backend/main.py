@@ -17,16 +17,20 @@ from app.services.simulation_service import simulation_service
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle event handler for backend startup and shutdown."""
-    yield
+    from app.services.experiment_service import experiment_runner
+    experiment_runner.startup()
+    try:
+        yield
+    finally:
+        experiment_runner.shutdown()
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description=(
-        "Production REST and WebSocket API for the Quantum Digital Signatures (QDS) "
-        "Threat Detection Engine. Built with deterministic quantum physics simulation (Zero ML), "
-        "MDI detector cross-checks, counterfactual zero-transmission monitors, postselection, "
-        "and formal Hoeffding security bounds."
+        "Research simulation API with a Qiskit Aer image-integrity teaching lab and "
+        "existing QDS protocol models. Image receipts use classical Ed25519 signatures. "
+        "Consult each endpoint's model assumptions; simulation results do not certify security."
     ),
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     version="1.0.0",
@@ -61,7 +65,7 @@ def root():
     return {
         "message": "QDS Threat Detection Engine Backend Running",
         "version": "1.0.0",
-        "docs": f"{settings.API_V1_STR}/docs",
+        "docs": "/docs",
     }
 
 
@@ -78,7 +82,7 @@ def health_check():
         "qiskit_version": qiskit.__version__,
         "registered_attack_classes": [a.value for a in AttackType if a != AttackType.CLEAN],
         "zero_ml": True,
-        "security_standard": "Hoeffding Finite-Key Bounds (CV-QDS Thornton et al.)",
+        "security_standard": "Educational simulation; see individual model assumptions",
     }
 
 

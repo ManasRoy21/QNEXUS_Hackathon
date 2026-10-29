@@ -30,6 +30,10 @@ venv.bak/
 
 # ── pytest / coverage ────────────────────────────────────────────
 .pytest_cache/
+.data/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
 .coverage
 coverage.xml
 htmlcov/
@@ -38,6 +42,7 @@ htmlcov/
 # ── Node.js / Next.js ────────────────────────────────────────────
 node_modules/
 .next/
+.next-dev/
 out/
 .nuxt/
 dist/

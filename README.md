@@ -1,260 +1,137 @@
-# Quantum Digital Signatures (QDS) Threat Detection Engine
-### Production-Grade Deterministic Threat Detection, Hoeffding Finite-Key Bounds & Real-Time Cyber-Quantum SOC
+# QDS Lab — Image Integrity × Quantum Experiments
 
-[![Security Standard](https://img.shields.io/badge/Security-Information--Theoretic%20(ITS)-brightgreen)](docs/architecture.md)
-[![Detection Engine](https://img.shields.io/badge/Engine-Zero--AI%2FML%20Deterministic-blue)](docs/architecture.md)
-[![Detection Rate](https://img.shields.io/badge/Empirical%20Detection%20Rate-100.0%25-success)](backend/app/tests/benchmark_results.json)
-[![False Positive Rate](https://img.shields.io/badge/False%20Alarm%20Rate-0.00%25-success)](backend/app/tests/benchmark_results.json)
-[![Verification SLA](https://img.shields.io/badge/Verification%20Latency-1.50ms-cyan)](backend/app/tests/benchmark_results.json)
-[![Python Version](https://img.shields.io/badge/Python-3.11%20%7C%203.12-blue)](backend/)
-[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2014%20%7C%20Tailwind-black)](frontend/)
+A hackathon research workbench for **image integrity**, **actual Qiskit channel-distribution experiments**, and **repeated-trial attack evaluation**. The landing page is an interactive experiment, backed by actual Qiskit Aer execution and authenticated, downloadable evidence.
 
----
+> Pitch: “A crash-test lab for digital trust. Seal an image, change a single pixel, and show the evidence. Then stress a quantum channel and inspect the measurements.”
 
-## 1. Executive Summary
+## Backend experiment engine
 
-The **Quantum Digital Signatures (QDS) Threat Detection Engine** is a high-throughput, enterprise-ready cybersecurity platform providing **Information-Theoretic Security (ITS)** for multi-party digital signatures. Grounded in continuous-variable quantum key distribution (CV-QDS) and tripartite Bell-state distribution, this system eliminates the mathematical vulnerability inherent in both classical (RSA/ECDSA) and post-quantum lattice algorithms (ML-DSA/Falcon).
+The new `/experiments` console runs repeated attacks on the canonical distribution engine, with actual per-pulse Qiskit measurement outcomes, erasure/detector sampling, uniform test subsets, and Serfling bounds on retained errors. It reports passed, rejected and inconclusive trials, false alarms and missed weak attacks. Studies, progress and full runs persist in SQLite. Replay, cancellation, JSON/CSV exports and idempotency are implemented.
 
-Operating under a strict **Zero-AI/ML deterministic standard**, the platform evaluates physical Born-rule measurement distributions against formal finite-key **Hoeffding concentration inequalities**. Across 6 quantum and classical attack classes, the engine delivers **100.0% detection accuracy with 0.00% false alarms** and sub-2 millisecond verification latency.
+The main `/workflow` now defaults to Aer in its engine selector. Its material-generation API no longer falls back to invented browser results when the Python backend fails. Aer intercept/resend evaluations re-execute circuits; they do not use the legacy formula-only attack response.
 
-```
-                  ┌──────────────────────────────────────────────────────────┐
-                  │          Alice (Authorized Quantum Signer)              │
-                  │  Encodes digest m ∈ {0,1}^L into Pauli states {|0⟩,|1⟩,|+⟩,|-⟩}
-                  └─────────────┬──────────────────────────────┬─────────────┘
-                                │                              │
-                        Quantum Fiber 1                Quantum Fiber 2
-                        (Transit Channel)              (Transit Channel)
-                                │                              │
-                                ▼                              ▼
-                  ┌──────────────────────────┐   Classical    ┌──────────────────────────┐
-                  │     Bob (Verifier 1)     │◄──Encrypted───►│   Charlie (Verifier 2)   │
-                  │   MDI Dual-Path Detect   │   Bit Swap     │   MDI Dual-Path Detect   │
-                  └─────────────┬────────────┘  (Module G)    └────────────┬─────────────┘
-                                │                                          │
-                                └────────────────────┬─────────────────────┘
-                                                     ▼
-                                      ┌──────────────────────────────┐
-                                      │ Hoeffding Bound Evaluator    │
-                                      │  e_rob, e_rep, e_forg Checks │
-                                      └──────────────┬───────────────┘
-                                                     ▼
-                                      ┌──────────────────────────────┐
-                                      │   Verdict: SECURE vs THREAT  │
-                                      │   Zero-ML Reason Code Alerts │
-                                      └──────────────────────────────┘
-```
+See [backend design, equations, limits and API](docs/backend-engine.md). The older NumPy analysis tools remain separate from the new measured study path.
 
----
+## What works
 
-## 2. Mathematical & Physical Foundations
+- Original/candidate image comparison with a bundled synthetic orbital image, or your own still PNG/JPEG/WebP.
+- SHA-256 fingerprints of decoded RGBA pixels, dimensions, file bytes, and an 8×8 tile grid.
+- Region replacement, one-pixel edits, alternate-file comparison, and restoration.
+- Signed Ed25519 receipts covering the original fingerprint **and** the complete channel experiment. Changing a hash, threshold, or experiment invalidates the signature.
+- Actual one-qubit Qiskit circuits executed using `AerSimulator(method="density_matrix")` for Bob and Charlie, separately seeded.
+- Clean, noisy, and intercept/resend scenarios; adjustable shots, seed, noise, and interception fraction.
+- Measured QBER, expected QBER, pooled Wilson intervals, circuit diagrams, and ideal OpenQASM export.
+- Guided demo: verify pristine image → alter region → reject changed image.
+- JSON evidence export and offline verifier with an independently trusted public key.
+- Existing research workflow and benchmark pages remain available.
 
-### A. The Non-Cloning Theorem & Born-Rule Perturbations
-Unlike classical signatures, which are vulnerable to infinite-time factorization or lattice-reduction attacks, quantum states cannot be cloned ($|\psi\rangle \to |\psi\rangle|\psi\rangle$ is unitary forbidden). An eavesdropper (Eve) attempting an **Intercept-Resend** measurement in an unaligned Pauli basis ($X$ vs. $Z$) irreversibly disturbs the quantum wavefunction:
-$$\text{Pr}(\text{Error} \mid \text{Eve measures}) = \frac{1}{2} \sin^2(\theta) \implies \text{QBER} \approx 25\% - 50\%$$
+## The scientific boundary
 
-### B. Finite-Key Hoeffding Concentration Security Bounds
-Rather than relying on ad-hoc heuristic thresholds, Module C dynamically calculates statistical cutoffs using **Hoeffding's Inequality** (Thornton et al.):
-$$P\left(\left|\hat{e} - e_{\text{true}}\right| \ge \epsilon\right) \le 2\exp\left(-2 n_{\text{shots}} \epsilon^2\right)$$
+This is a **QDS-inspired educational lab**, combining a **BB84 channel model** with a **classical signed image manifest**. It is not a complete implementation of Practical QDS. The image is not encoded or transmitted through quantum hardware. Qiskit measurements characterize the simulated channel; ordinary cryptography checks image integrity.
 
-From this concentration bound, three dynamic security thresholds are established:
-1. **Robustness Bound ($e_{\text{rob}}$)**: Maximum permissible error rate under legitimate channel noise ($\delta_{\text{est}}$) to avoid rejecting genuine signatures:
-   $$e_{\text{rob}} = \delta_{\text{est}} + \sqrt{\frac{\ln(1/\epsilon_{\text{PE}})}{2 n_{\text{shots}}}} \quad (\approx 6.58\% \text{ for } n=4096)$$
-2. **Repudiation / Eavesdrop Bound ($e_{\text{rep}}$)**: Cutoff above which channel noise implies physical interception or verifier asymmetry:
-   $$e_{\text{rep}} = e_{\text{rob}} + \Delta_{\text{margin}} \quad (\approx 13.58\%)$$
-3. **Forgery Security Bound ($e_{\text{forg}}$)**: Maximum acceptable Hamming disagreement between classical digest and measured Pauli basis outcomes:
-   $$e_{\text{forg}} = 2 e_{\text{rob}} + \Delta_{\text{margin}} \quad (\approx 20.58\%)$$
+There is no claim of quantum advantage, universal threat detection, or production security. The channel simulation does not add security to Ed25519. It does not implement QDS symmetrization, privacy amplification, authentication of a real optical channel, or a non-repudiation proof. No cryptographic keys are derived from reproducible simulator output.
 
-### C. Boundary Postselection Filter
-Continuous boundary measurements in the ambiguous threshold zone $|e - 0.5| \le \text{margin}$ are postselected out without revealing secret state information:
-$$\text{Yield} = \frac{n_{\text{postselected}}}{n_{\text{total}}} \ge 95\% \quad (\text{Observed Empirical Yield: } 97.0\%)$$
+The bundled image is an original, code-generated illustration labeled as synthetic. Image verification shows whether pixels changed since sealing; it does **not** detect deepfakes, establish photographer identity, or prove an image depicts a real event. Anyone with access to this demo API can request a seal.
 
-### D. Module G Symmetrization Guard (Preventing Repudiation)
-To solve the Dishonest-Alice repudiation paradox—where Alice distributes valid states to Bob but corrupted states to Charlie—Bob and Charlie execute an encrypted classical exchange of 50% of their received signature registers. Alice has **zero visibility** into which indices were exchanged ($\text{Alice\_informed} = \text{False}$).
-* Any asymmetric corruption distributed by Alice is divided equally between Bob and Charlie.
-* Both verifiers observe $\text{QBER} > e_{\text{rep}}$, eliminating verifier disagreement and guaranteeing simultaneous rejection.
+## Run locally
 
----
+Tested with Python 3.12, Node 23.10, Qiskit 2.6.1 and Aer 0.18.0. No IBM account or API token required.
 
-## 3. Threat Classification & Detection Matrix
-
-The engine provides 100% deterministic detection coverage across 6 core threat classes:
-
-| Threat Class | Attack Mechanism | Detection Layer | Breach Trigger | Reason Code | Severity |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **INTERCEPT_RESEND** | Fiber tapping; unaligned projective measurement and resend. | Born-Rule QBER Evaluator | $\text{QBER} > e_{\text{rep}}$ ($13.58\%$) | `ERR_HOEFFDING_QBER_ANOMALY` | **CRITICAL** |
-| **FORGERY** | Tampering with message hash or quantum Pauli basis eigenstates. | State-Digest Disagreement | $\text{HammingDist} > e_{\text{forg}}$ ($20.58\%$) | `ERR_PAYLOAD_FORGERY_DETECTED` | **HIGH** |
-| **IMPERSONATION** | Adversary (Mallory) transmitting forged public key credentials. | PKI Credential Inspector | $\text{Key} \ne \text{Authorized Alice Key}$ | `ERR_SIGNER_IDENTITY_MISMATCH` | **HIGH** |
-| **REPLAY** | Replaying intercepted historic valid quantum signature block. | Temporal Nonce Guard | $\Delta t > 60\text{s}$ or Reused Nonce | `ERR_REPLAY_STALE_OR_DUPLICATE_NONCE` | **HIGH** |
-| **REPUDIATION** | Dishonest Alice sends mismatched states to Bob vs Charlie. | Module G Symmetrization | Both Verifiers $\text{QBER} > e_{\text{rep}}$ | `ERR_HOEFFDING_REPUDIATION_BOUND_BREACH` | **CRITICAL** |
-| **DETECTOR_SIDE_CHANNEL** | CW laser blinding injected into Path B detector. | MDI Dual-Path Cross-Check | $|\text{Path A} - \text{Path B}| > \tau_{\text{bias}}$ | `ERR_DETECTOR_SIDE_CHANNEL_BIAS` | **CRITICAL** |
-
----
-
-## 4. Empirical Benchmark Validation (Day 10 Results)
-
-Empirical metrics collected via automated test suite ([`backend/app/tests/benchmark_day10_metrics.py`](backend/app/tests/benchmark_day10_metrics.py)) across 10 iterations per threat class (70 total protocol evaluations):
-
-```
-================================================================================
- EMPIRICAL PERFORMANCE BENCHMARK MATRIX (DAY 10 VALIDATION)
-================================================================================
- Threat Class Evaluated       Runs  Intercepted  Mean QBER   Reason Code Verification
- ───────────────────────────────────────────────────────────────────────────────
- Clean Baseline (Unperturbed)  10      0 (0% FPR)   0.00%    VERDICT: SECURE (100% Confidence)
- Intercept-Resend Eavesdrop    10     10 (100% TPR) 41.50%   ERR_HOEFFDING_QBER_ANOMALY
- Quantum Payload Forgery       10     10 (100% TPR)  0.00%   ERR_PAYLOAD_FORGERY_DETECTED
- Signer Key Impersonation      10     10 (100% TPR)  0.00%   ERR_SIGNER_IDENTITY_MISMATCH
- Signature Replay Attack       10     10 (100% TPR)  0.00%   ERR_REPLAY_STALE_OR_DUPLICATE_NONCE
- Dishonest-Alice Repudiation   10     10 (100% TPR)  0.00%   ERR_HOEFFDING_REPUDIATION_BOUND_BREACH
- Detector Side-Channel Bias    10     10 (100% TPR)  0.00%   ERR_DETECTOR_SIDE_CHANNEL_BIAS
- ───────────────────────────────────────────────────────────────────────────────
- TOTAL ATTACKS EVALUATED   : 60
- TOTAL ATTACKS INTERCEPTED : 60 (100.0% Detection Accuracy)
- FALSE POSITIVE RATE (FPR) : 0.00% (Zero False Alarms)
- POSTSELECTION SHOT YIELD  : 97.0% (3,973 / 4,096 retained)
+```sh
+# From the repository root; use Python 3.11 or 3.12
+python3.12 -m venv backend/.venv
+backend/.venv/bin/python -m pip install -r backend/requirements-lock.txt
+npm ci --prefix frontend
+npm run demo
 ```
 
-### Execution Latencies (Sub-Millisecond Engine)
-* **Key Generation (`POST /keygen`)**: Mean **2.22 ms** (P95: 10.44 ms)
-* **Signature Preparation (`POST /sign`)**: Mean **1.53 ms** (P95: 2.73 ms)
-* **Signature Verification (`POST /verify`)**: Mean **1.50 ms** (P95: 3.42 ms)
-* **Attack Injection (`POST /attack/inject`)**: Mean **1.25 ms** (P95: 1.61 ms)
-* **Module G Symmetrization (`POST /symmetrize`)**: Mean **1.43 ms** (P95: 2.98 ms)
+Open [localhost:3000](http://localhost:3000). The API listens on `127.0.0.1:8000`; Next proxies `/api/v1` to it. Stop both services with Ctrl+C. `DEMO_PORT=3001 npm run demo` selects another frontend port.
 
----
+Or start them separately in two terminals:
 
-## 5. System Architecture & Repository Structure
-
-```
-qds-threat-detection/
-├── backend/
-│   ├── app/
-│   │   ├── api/v1/endpoints/       # FastAPI REST endpoints (keygen, sign, verify, attack, symmetrize, metrics)
-│   │   ├── core/config.py          # Resilient environment & Pydantic-settings config
-│   │   ├── engine/
-│   │   │   ├── physics/            # Module A: Bell pairs, teleportation, Pauli operators
-│   │   │   ├── protocol/           # Module B: Multi-party QDS distribution, signing, verifiers
-│   │   │   └── threats/            # Module C, D, G: Threat detector, attack simulator, symmetrizer
-│   │   ├── schemas/qds_schemas.py  # Pydantic v2 schemas for all requests, responses, telemetry
-│   │   ├── services/               # In-memory session manager & WebSocket stream orchestrator
-│   │   └── tests/                  # Automated integration tests (Days 1–8) & Day 10 benchmark suite
-│   ├── main.py                     # FastAPI ASGI entrypoint with CORS & WebSocket handlers
-│   └── Dockerfile                  # Production container recipe
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── dashboard/page.tsx  # Operations Console (gauges, reason codes, histogram, terminal)
-│   │   │   ├── attacks/page.tsx    # Attack Injection Testing Suite & Symmetrization trigger
-│   │   │   └── analytics/page.tsx  # Hoeffding asymptotic curves & real-time KPI cards
-│   │   ├── components/             # Reusable UI components (ThreatVerdictGauge, LiveHistogram, etc.)
-│   │   ├── hooks/                  # Custom hooks (useSimulation.ts, useWebSocket.ts)
-│   │   ├── services/api.ts         # Axios API client wrapper
-│   │   └── types/index.ts          # Synchronized TypeScript schemas
-│   ├── package.json                # Next.js 14, Recharts, Tailwind CSS, Lucide dependencies
-│   └── tsconfig.json               # TypeScript path alias configuration (@/* -> ./src/*)
-├── docs/
-│   ├── architecture.md             # Multi-tier Mermaid architectural diagrams
-│   ├── pitch_deck.md               # 10-slide executive pitch deck for enterprise/defense leadership
-│   └── demo_rehearsal.md           # 5-minute step-by-step speaker script and live rehearsal guide
-└── docker-compose.yml              # Multi-container local orchestration
+```sh
+npm run dev:backend
+npm run dev
 ```
 
----
+The lock file includes test dependencies for a reproducible development environment. For minimal server installs, use `backend/requirements.txt`; for tests with that install, also use `backend/requirements-dev.txt`.
 
-## 6. Production API Reference
+If the frontend is hosted separately, set `NEXT_PUBLIC_API_URL` to your Python API’s `/api/v1` URL before building. `API_PROXY_URL` configures the Next server’s proxy target (default `http://127.0.0.1:8000`). Docker Compose uses `http://backend:8000`.
 
-### REST Endpoints (`/api/v1`)
-| Method | Endpoint | Description | Request Body Payload | Response Key Fields |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/health` | Root system health check | None | `status`, `engine`, `zero_ml` |
-| `POST` | `/api/v1/simulate/keygen` | Generates tripartite EPR key pairs | `num_bits`, `parties` | `session_id`, `bell_pairs_generated` |
-| `POST` | `/api/v1/simulate/sign` | Prepares signature block with Pauli states | `session_id`, `message` | `digest`, `target_bases`, `nonce` |
-| `POST` | `/api/v1/simulate/verify` | Executes Hoeffding threat evaluation | `session_id`, `verifier_id` | `verdict`, `qber`, `e_rob`, `reason_codes` |
-| `POST` | `/api/v1/attack/inject` | Injects 1 of 6 quantum threat vectors | `session_id`, `attack_type`, `intensity` | `status`, `description`, `metadata` |
-| `POST` | `/api/v1/symmetrize` | Module G verifier encrypted state swap | `session_id`, `swap_ratio` | `swap_count`, `alice_informed: false` |
-| `GET` | `/api/v1/metrics` | System-wide detection & QBER analytics | None | `detection_rate`, `clean_runs`, `threats_detected` |
+### Signing-key lifetime
 
-### WebSocket Real-Time Stream
-* **URL**: `ws://localhost:8001/ws/stream?session_id=<session_id>`
-* **Frame Schema**:
-  ```json
-  {
-    "timestamp": 1788722054.45,
-    "event_type": "CHANNEL_TRANSIT",
-    "session_id": "qds-49205491",
-    "qber": 0.00,
-    "hoeffding_threshold": 0.1358,
-    "active_threat": "CLEAN",
-    "severity": "LOW",
-    "channel_telemetry": {
-      "message": "Quantum signature states in transit across optical fiber."
-    }
-  }
-  ```
+By default, one random Ed25519 key is generated per API process. A restart changes the issuer and earlier receipts fail verification on that server. For consistent receipts, set `IMAGE_LAB_SIGNING_KEY` in `backend/.env` to a privately generated 32-byte seed encoded as 64 hex characters. Do not commit or share it. All workers must use the same configured key if you run more than one.
 
----
+`GET /api/v1/image-lab/capabilities` returns the public key and its ID. Pin the public key through a trusted channel. A public key included in an untrusted JSON export does not establish trust by itself. This local demo has no account authentication or external timestamp authority.
 
-## 7. Quick Start & Execution Guide
+### Image handling
 
-### Prerequisites
-* Linux / macOS (tested on Ubuntu 22.04 LTS / Debian 12)
-* Python 3.11 or 3.12 (Miniconda / Anaconda recommended)
-* Node.js v18+ and npm v9+
+Image bytes are sent to the configured API for processing and are not saved to disk or session storage. Receipts contain hashes and experiment data, not image bytes. Still PNG, JPEG, and WebP only; maximum 2 MiB, 2048 pixels on either side, and 2 megapixels total; minimum 8×8.
 
-### Option A: Local Development (Native)
+Fingerprints use EXIF-transposed RGBA pixels and dimensions. Lossless recompression can change file bytes while preserving pixel integrity; the UI reports both. A resize invalidates dimensions and marks all tiles as changed. JPEG recompression generally changes decoded pixels and is expected to fail the pixel check. This is exact integrity, not perceptual similarity.
 
-1. **Activate Python Environment & Start FastAPI Backend**:
-   ```bash
-   cd backend
-   # In conda env with fastapi, uvicorn, qiskit, qiskit-aer
-   PYTHONPATH=. /home/krishna/miniconda3/envs/cwq/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-   ```
+## What Qiskit executes
 
-2. **Start Next.js Frontend Dashboard**:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-   Open `http://localhost:3000` in your browser.
+For each verifier:
 
-### Option B: Run Automated Test Suites & Benchmarks
+1. Prepare `|0⟩`, `|1⟩`, `|+⟩`, or `|−⟩` using X and H gates.
+2. Enumerate balanced preparation/receiver basis combinations; if Eve is enabled, enumerate her two bases too. Batch identical circuits into equal shot groups.
+3. Model interception fraction `f` as the averaged measure/resend channel. In Eve’s Z basis this is `I` with probability `1-f/2` and `Z` with probability `f/2`; conjugate with H for X. This is equivalent to projective measurement and resend after averaging over Eve’s outcomes.
+4. Apply depolarization of strength `2e`, so matched-basis channel noise has error probability `e`.
+5. Measure, discard mismatched preparation/receiver bases, and compute QBER from actual counts. Half the transmitted shots are retained by construction.
 
-```bash
-# Run Full Days 1-8 Regression Suite
+Expected matched-basis error is `e + (1 - 2e)f/4`. Full interception with no noise produces approximately 25% QBER; ideal clean channels produce zero. Stratified sampling and Aer PRNGs are deliberate educational simplifications. Seeds repeat on the tested dependency versions; different platforms/versions need not produce identical counts.
+
+The 11% acceptance cutoff is an **illustrative policy**, not a Practical-QDS theorem or finite-key security threshold. Pooled Wilson intervals are descriptive approximations for the stratified experiment, not QDS security bounds. Circuit text includes Aer channels; the OpenQASM 2 export contains only ideal preparation/measurement because it cannot represent Aer noise instructions.
+
+## API
+
+| Method | Path | Behavior |
+|---|---|---|
+| GET | `/api/v1/image-lab/capabilities` | Public key, limits, model assumptions |
+| POST | `/api/v1/image-lab/channel` | Execute a bounded channel experiment |
+| POST | `/api/v1/image-lab/seal` | Validate image, execute experiment, sign manifest |
+| POST | `/api/v1/image-lab/verify` | Validate signature, compare pixels/tiles, combine image and channel checks |
+
+Seal body: `{ "image_base64": "<raw base64, no data URL prefix>", "config": { "shots": 4096, "seed": 42, "noise": 0.01, "interception": 0 } }`.
+
+Verify body: `{ "image_base64": "...", "receipt": <seal response> }`.
+
+An intact image can fail channel policy. A changed image can fail with a clean channel. The UI keeps these outcomes separate. Bob and Charlie represent separate channel trials and policy checks, not independent remote parties holding distributed secrets.
+
+### Offline verification
+
+Download the JSON report and obtain the issuer public key independently. With the backend dependencies installed:
+
+```sh
+backend/.venv/bin/python backend/verify_image_receipt.py experiment.json candidate.png --trusted-public-key '<trusted base64 public key>'
+```
+
+Exit codes: 0 accepted; 1 image/channel check failed; 2 invalid input or untrusted signature. This validates the receipt and candidate without calling a server. It does not re-execute the quantum experiment or create a proof that it ran on hardware.
+
+## Validation
+
+```sh
 cd backend
-PYTHONPATH=. /home/krishna/miniconda3/envs/cwq/bin/python app/tests/test_day8_api.py
-
-# Run Day 10 Comprehensive Metrics Benchmark
-PYTHONPATH=. /home/krishna/miniconda3/envs/cwq/bin/python app/tests/benchmark_day10_metrics.py
+.venv/bin/python -m pytest -q
+cd ../frontend
+npm run build
 ```
 
-### Option C: Docker Compose
+The new tests cover theoretical/observed QBER agreement, seed replay, image edits, compression, dimensions, invalid files, receipt alteration, issuer mismatch, and API validation. Existing protocol tests are retained; they are not a security certification. See [the hackathon runbook](docs/hackathon-demo.md) for the pitch and demo sequence.
 
-```bash
-docker-compose up --build
-```
+## Existing research tools
 
----
+- `/workflow`: six-step protocol console with Qiskit Aer or NumPy material generation. Aer interception re-executes actual measurement circuits.
+- `/benchmarks`: existing sweeps and statistical analyses.
+- `/research`: concise explanation of the research tools.
+- `/experiments`: persistent repeated-trial studies and measured backend evidence.
 
-## 8. Documentation Artifacts
+Older documents in `backend/docs` and the legacy architecture notes describe earlier iterations. Historical performance and security claims there should not be presented as validated results for this new lab. The authoritative boundary for the new experiment is documented above and in its source.
 
-* **[Architecture Blueprints & Data Flows](docs/architecture.md)**: Multi-level Mermaid diagrams illustrating system components, protocol sequences, and decision trees.
-* **[Executive Pitch Deck](docs/pitch_deck.md)**: 10 structured slides for executive presentation to CISOs, defense agencies, and enterprise architects.
-* **[Live Demo Rehearsal Runbook](docs/demo_rehearsal.md)**: 5-minute timed speaker script with exact UI click instructions, expected outputs, and curl fallback commands.
+## References
 
----
+- [Qiskit Aer documentation](https://qiskit.github.io/qiskit-aer/)
+- [Yin, Fu & Chen, Practical Quantum Digital Signature](https://arxiv.org/abs/1507.03333)
 
-## 9. Academic Citations & Theoretical Grounding
-
-1. **Thornton, M., et al.** (2019). *Continuous-Variable Quantum Digital Signatures over Optical Fiber with Finite-Size Security Bounds*. Physical Review Applied.
-2. **Richter, F., Thornton, M., et al.** (2020). *Agile Quantum Digital Signatures without Trusted Third Parties*. Quantum Science and Technology.
-3. **Bian, R., et al.** (2021). *Measurement-Device-Independent Quantum Digital Signatures with Real-Time Calibration and Side-Channel Protection*. Optics Express.
-4. **Rao, P., et al.** (2022). *Counterfactual Quantum Communication: Zero-Transmission Verification and Attack Guarding*. Physical Review A.
-
----
-
-## 10. License & Intellectual Property
-
-This project is released under the **MIT License**. Engineered for mission-critical post-quantum cybersecurity research and defense applications.
+This improvement builds on the upstream QDS repository; its existing research engines remain identifiable. Review upstream licensing before redistribution; this checkout did not contain a license file at clone time.

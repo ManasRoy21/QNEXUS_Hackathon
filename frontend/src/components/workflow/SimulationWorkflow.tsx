@@ -65,68 +65,8 @@ export default function SimulationWorkflow() {
           setSelectedProtocol(interactive[0].id);
         }
       } catch (err: any) {
-        console.warn('Backend unreachable, using offline fallback protocols:', err);
-        const fallbackList: ProtocolEntry[] = [
-          {
-            id: 'practical_qds',
-            name: 'Practical QDS (Yin, Fu & Chen 2023)',
-            category: 'experimental_hardware',
-            description: 'Phase-encoded weak coherent states with decoy state method and non-repudiation.',
-            citation: 'Yin et al., Nature Communications 14, 1234 (2023)',
-            status: 'Primary interactive baseline',
-            is_interactive: true,
-            default_config: { distance_km: 25, num_bits: 2000, source_rate_mhz: 100 },
-            supported_attacks: ['intercept_resend', 'phase_flip', 'bit_flip'],
-          },
-          {
-            id: 'decoy_qds',
-            name: 'Decoy-State QDS',
-            category: 'experimental_hardware',
-            description: 'Active multi-intensity state preparation defending against photon-number-splitting.',
-            citation: 'Lo, Ma, & Chen, PRL (2005)',
-            status: 'PNS Resistant',
-            is_interactive: true,
-            default_config: { distance_km: 25, num_bits: 2000, source_rate_mhz: 100 },
-            supported_attacks: ['intercept_resend'],
-          },
-          {
-            id: 'mdi_qds',
-            name: 'Measurement-Device-Independent QDS',
-            category: 'experimental_hardware',
-            description: 'Eliminates all detector side-channel vulnerabilities via untrusted central node.',
-            citation: 'Rubenok et al., PRL 111, 130501 (2013)',
-            status: 'Detector Loophole Free',
-            is_interactive: true,
-            default_config: { distance_km: 40, num_bits: 2000, source_rate_mhz: 100 },
-            supported_attacks: ['compromised_detector'],
-          },
-          {
-            id: 'tf_qds',
-            name: 'Twin-Field QDS',
-            category: 'experimental_hardware',
-            description: 'Single-photon interference overcoming standard repeaterless channel capacity limits.',
-            citation: 'Lucamarini et al., Nature 557, 400-403 (2018)',
-            status: 'Ultra Long Haul',
-            is_interactive: true,
-            default_config: { distance_km: 150, num_bits: 2000, source_rate_mhz: 100 },
-            supported_attacks: ['intercept_resend'],
-          },
-          {
-            id: 'otuh_qds',
-            name: 'One-Time Universal Hashing QDS',
-            category: 'experimental_hardware',
-            description: 'High-rate signature scheme leveraging Wegman-Carter universal hashing.',
-            citation: 'Amiri et al., IEEE TIFS 16, 2021',
-            status: 'High Throughput',
-            is_interactive: true,
-            default_config: { distance_km: 10, num_bits: 10000, source_rate_mhz: 1000 },
-            supported_attacks: ['intercept_resend', 'bit_flip'],
-          },
-        ];
-        setProtocols(fallbackList);
-        if (!selectedProtocol) {
-          setSelectedProtocol('practical_qds');
-        }
+        setProtocols([]);
+        setError('Protocol API is unavailable. Start the backend and reload; no simulated results have been substituted.');
       }
     }
     loadProtocols();
@@ -178,83 +118,9 @@ export default function SimulationWorkflow() {
       setStatBoundResult(null);
       setSigningDone(false);
     } catch (err: any) {
-      console.warn('Backend unavailable for generateMaterial, using deterministic client-side simulation:', err);
-      const N = req.pulse_count || 10000;
-      const dist = req.distance_km || 25;
-      const loss = req.fiber_attenuation || 0.2;
-      const eta = req.detector_efficiency || 0.8;
-      const channelLoss = Math.pow(10, -(dist * loss) / 10);
-      const detected = Math.round(N * eta * channelLoss);
-      const concB = Math.round(detected * 0.49);
-      const concC = Math.round(detected * 0.49);
-      const betaVal = req.beta || 0.2;
-      const testB = Math.round(concB * betaVal);
-      const MuB = concB - testB;
-
-      const fallbackState: CanonicalSimulationState = {
-        simulation_id: `sim-qds-${Date.now().toString(16)}`,
-        seed: req.seed || 12345,
-        protocol: req.protocol || 'practical_qds',
-        model_version: 'v1.4.2-deterministic',
-        configuration: {
-          pulse_count: N,
-          distance_km: dist,
-          fiber_attenuation: loss,
-          detector_efficiency: eta,
-          dark_count_rate: req.dark_count_rate || 0.000001,
-          baseline_qber: req.baseline_qber || 0.02,
-          beta: betaVal,
-          authentication_threshold: req.authentication_threshold || 0.1,
-          verification_threshold: req.verification_threshold || 0.15,
-        },
-        material: {
-          bob_conclusive_bits: '101100110101100110110011010110011011001101011001',
-          charlie_conclusive_bits: '101100110101100110110011010110011011001101011001',
-          test_bits: {
-            beta: betaVal,
-            bob_test_count: testB,
-            charlie_test_count: testB,
-            sample_test_indices_bob: [0, 4, 8, 12, 16],
-            sample_test_indices_charlie: [1, 5, 9, 13, 17],
-          },
-          untested_bits: {
-            M_u_bob: MuB,
-            M_u_charlie: MuB,
-            total_M_u: MuB * 2,
-            sample_untested_bits_bob: '1011001101011001',
-            sample_untested_bits_charlie: '1011001101011001',
-          },
-        },
-        measurement_statistics: {
-          transmitted_pulses: N,
-          detected_events: detected,
-          conclusive_count_bob: concB,
-          conclusive_count_charlie: concC,
-          mismatch_count_bob: Math.round(testB * (req.baseline_qber || 0.02)),
-          mismatch_count_charlie: Math.round(testB * (req.baseline_qber || 0.02)),
-          qber_bob: req.baseline_qber || 0.02,
-          qber_charlie: req.baseline_qber || 0.02,
-        },
-        model_metadata: {
-          model_name: 'PracticalDecoyQDS',
-          model_version: 'v1.4.2-deterministic',
-          assumptions: [
-            'Phase-randomized weak coherent pulses',
-            'Decoy-state photon number statistics',
-            'Standard telecommunication fiber SMF-28',
-          ],
-          simplifications: [
-            'Symmetric Bob/Charlie fiber channel distance',
-            'Independent detector dark counts',
-          ],
-        },
-      };
-      setSimulationState(fallbackState);
+      setSimulationState(null);
       setAttackResult(null);
-      setSweepResult(null);
-      setStatBoundResult(null);
-      setSigningDone(false);
-      setError(null);
+      setError(err?.response?.data?.detail || err?.message || 'Material generation failed. No fallback data was generated.');
     } finally {
       setLoading(false);
     }
