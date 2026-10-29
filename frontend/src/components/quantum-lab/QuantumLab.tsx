@@ -4,19 +4,12 @@ import { ArrowDownToLine, ArrowRight, Atom, Check, ChevronDown, Cpu, Fingerprint
 import { BellConfig, BellResult, ExchangeConfig, ExchangeResult, HardwareJob, HardwareStatus, quantumLab } from '@/services/quantumLab';
 import { downloadFile } from '@/services/imageLab';
 import styles from './quantum.module.css';
+import BellEvidence from './BellEvidence';
+import Link from 'next/link';
 
 const pct = (n: number) => `${(n*100).toFixed(2)}%`;
 const DEFAULT: ExchangeConfig = { pulses: 4096, seed: 42, noise: 0, interception: 0, message: 'Pay ₹10,000 to Rahul. Reference QN-204.' };
 const BELL: BellConfig = { shots: 4096, seed: 42, noise: 0, interception: 0, state: 'bell' };
-
-function BellEvidence({ result }: { result: BellResult }) {
-  return <div className={styles.bellEvidence}>
-    <div className={styles.witness}><div><span>MEASURED CHSH WITNESS</span><strong>{result.s.toFixed(3)}</strong><p>95% bound: {result.interval_95[0].toFixed(3)}–{result.interval_95[1].toFixed(3)}</p></div><div><span>LOCAL HIDDEN-VARIABLE BOUND</span><strong>2.000</strong><p>Ideal quantum maximum: {result.quantum_max.toFixed(3)}</p></div></div>
-    <div className={`${styles.result} ${result.violation_supported ? styles.pass : styles.neutral}`}><ShieldCheck size={20} /><div><strong>{result.violation_supported ? 'Witness above the local bound' : 'No confident violation in this run'}</strong><p>{result.violation_supported ? 'The lower confidence bound exceeds 2 under the stated model assumptions.' : 'Noise, interception, a product state or finite sampling can prevent a clear violation. This does not prove that a state is unentangled.'}</p></div></div>
-    <div className={styles.correlators}>{result.settings.map(row => <div key={row.setting}><span>{row.setting}</span><strong>{row.correlation.toFixed(3)}</strong><small>{row.shots.toLocaleString()} shots</small><div className={styles.counts}>{Object.entries(row.counts).sort().map(([bits, count]) => <span key={bits}>{bits}: {count}</span>)}</div></div>)}</div>
-    <p className={styles.note}>{result.confidence_note} {result.scope}</p>
-  </div>;
-}
 
 export default function QuantumLab() {
   const [tab, setTab] = useState<'key' | 'bell' | 'hardware'>('key');
@@ -56,7 +49,7 @@ export default function QuantumLab() {
   const scenario = tab === 'bell' ? bellConfig : config;
 
   return <div className={styles.lab}>
-    <header className={styles.hero}><div className={styles.eyebrow}><Atom size={16} /> QUANTUM EXPLORER</div><h1>Make the quantum part visible.</h1><p>Establish a demonstration key, inspect entanglement, and connect supported circuits to a physical quantum processor.</p><div className={styles.disclosure}><Radio size={14} /> Key exchange and entanglement run in Qiskit Aer. Hardware results are labelled separately and require IBM Quantum access.</div></header>
+    <header className={styles.hero}><div className={styles.eyebrow}><Atom size={16} /> QUANTUM EXPLORER</div><h1>Make the quantum part visible.</h1><p>Establish a demonstration key, inspect entanglement, and connect supported circuits to a physical quantum processor.</p><div className={styles.disclosure}><Radio size={14} /> Key exchange and entanglement run in Qiskit Aer. Hardware results are labelled separately and require IBM Quantum access.</div><Link href="/demo" className={styles.demoLink}>Present the three-step guided demo <ArrowRight size={14} /></Link></header>
     <nav className={styles.tabs} aria-label="Quantum experiments">{[{ id: 'key', name: 'Key exchange', detail: 'From signals to a payment', Icon: KeyRound }, { id: 'bell', name: 'Entanglement', detail: 'Measure the correlations', Icon: Atom }, { id: 'hardware', name: 'Real hardware', detail: 'Submit a physical QPU job', Icon: Cpu }].map(({ id, name, detail, Icon }) => <button key={id} disabled={disabled} aria-pressed={tab === id} onClick={() => { setTab(id as typeof tab); setError(''); }}><Icon size={19} /><span><strong>{name}</strong><small>{detail}</small></span><ArrowRight size={14} /></button>)}</nav>
 
     {tab !== 'hardware' && <section className={styles.panel}>
@@ -91,6 +84,7 @@ export default function QuantumLab() {
 
     {tab === 'hardware' && <section className={styles.panel}><div className={styles.panelHeading}><div><span className={styles.eyebrow}>IBM QUANTUM / OWNER ACCESS</span><h2>Execute a Bell experiment on a physical QPU.</h2></div><span className={styles.badge}>{hardware?.available ? 'CONFIGURED' : 'SETUP REQUIRED'}</span></div>
       <p className={styles.note}>{hardware?.explanation || 'Checking hardware configuration…'} {hardware?.scope} Errors and missing credentials never fall back to simulated hardware results.</p>
+      <Link href="/demo" className={styles.demoLink}>View the guided demo and completed IBM hardware evidence <ArrowRight size={14} /></Link>
       {!hardware?.available && <div className={styles.setup}><Cpu size={25} /><div><h3>Connect your IBM Quantum account</h3><p>The owner configures the API key, instance, backend and operator password on the server. The browser never asks for your IBM API key.</p><a href="https://quantum.cloud.ibm.com/docs/en/guides/save-credentials" target="_blank" rel="noreferrer">IBM account setup instructions ↗</a></div></div>}
       <div className={styles.controls}><label>Processor<input aria-label="Configured processor" disabled value={hardware?.backend || 'Not configured'} /></label><label>Shots per setting<select value={hardwareShots} disabled={disabled || !hardware?.available} onChange={e => setHardwareShots(Number(e.target.value))}><option value={1024}>1,024</option><option value={2048}>2,048</option></select></label><label>Operator password<input aria-label="Quantum operator password" type="password" autoComplete="off" value={password} disabled={disabled || !hardware?.available} onChange={e => setPassword(e.target.value)} /></label></div>
       <label className={styles.acknowledge}><input type="checkbox" checked={acknowledged} disabled={disabled || !hardware?.available} onChange={e => setAcknowledged(e.target.checked)} /> I understand this submits four circuits and uses the configured IBM Quantum account’s quota. Any billing follows that account’s plan.</label>

@@ -1,0 +1,71 @@
+{
+  "job_id": "dbhpl1o1h92s73827stg",
+  "status": "DONE",
+  "backend": "ibm_marrakesh",
+  "execution": "ibm_quantum_hardware",
+  "result": {
+    "settings": [
+      {
+        "setting": "A0B0",
+        "counts": {
+          "11": 379,
+          "00": 353,
+          "01": 111,
+          "10": 181
+        },
+        "shots": 1024,
+        "correlation": 0.4296875,
+        "radius_95_simultaneous": 0.0995612819216314
+      },
+      {
+        "setting": "A0B1",
+        "counts": {
+          "00": 339,
+          "11": 373,
+          "10": 161,
+          "01": 151
+        },
+        "shots": 1024,
+        "correlation": 0.390625,
+        "radius_95_simultaneous": 0.0995612819216314
+      },
+      {
+        "setting": "A1B0",
+        "counts": {
+          "00": 387,
+          "01": 101,
+          "11": 418,
+          "10": 118
+        },
+        "shots": 1024,
+        "correlation": 0.572265625,
+        "radius_95_simultaneous": 0.0995612819216314
+      },
+      {
+        "setting": "A1B1",
+        "counts": {
+          "01": 384,
+          "10": 410,
+          "11": 122,
+          "00": 108
+        },
+        "shots": 1024,
+        "correlation": -0.55078125,
+        "radius_95_simultaneous": 0.0995612819216314
+      }
+    ],
+    "s": 1.943359375,
+    "interval_95": [
+      1.5451142473134745,
+      2.3416045026865255
+    ],
+    "local_bound": 2,
+    "quantum_max": 2.8284271247461903,
+    "violation_supported": false,
+    "verdict": "NO_CONFIDENT_VIOLATION",
+    "confidence_note": "Conservative 95% simultaneous Hoeffding bound, assuming independent shots. No loophole-free nonlocality or channel-security claim."
+  },
+  "retrieved_at": "2026-10-29T19:15:04.657799+00:00",
+  "provenance": "Saved response from the authenticated IBM Quantum Runtime job retrieval through QNexus. The CHSH witness is calculated from the returned raw counts.",
+  "scope": "Two qubits on one physical processor. This run does not demonstrate a confident Bell violation, a distributed quantum link, or computational quantum advantage."
+}

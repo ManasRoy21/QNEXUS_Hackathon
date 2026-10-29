@@ -14,6 +14,7 @@ See [backend design, equations, limits and API](docs/backend-engine.md). The old
 
 ## What works
 
+- `/demo`: a guided hackathon presentation with live payment-tampering verification, a clean-versus-Eve channel comparison, and recorded IBM hardware counts from completed job `dbhpl1o1h92s73827stg`. The physical score is 1.943 with no confident Bell violation. Replaying the demo submits no new QPU jobs.
 - `/quantum-lab`: explicit-interception BB84 teaching workflow with sifting, sample testing, shuffled parity reconciliation, Toeplitz key shortening, and AES-GCM sample-payment authentication; shot-based CHSH entanglement experiments; opt-in, operator-protected IBM Quantum hardware jobs. See [setup, assumptions, and the hackathon explanation](docs/quantum-lab.md).
 - `/text-lab`: exact UTF-8 message integrity alongside the image lab. Seal text and a real Qiskit channel experiment in an Ed25519 receipt, edit a separate candidate, verify, restore, and download the evidence. Includes clean/noisy/intercepted scenarios and a guided text demo.
 - Original/candidate image comparison with a bundled synthetic orbital image, or your own still PNG/JPEG/WebP.

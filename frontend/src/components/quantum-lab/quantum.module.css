@@ -3,6 +3,7 @@
 .eyebrow { display:flex; align-items:center; gap:8px; font-size:9px; font-weight:600; letter-spacing:1.3px; color:#638197; }
 .hero h1 { font-family:Inter,system-ui,sans-serif; font-size:clamp(29px,4vw,45px); font-weight:550; letter-spacing:-1.7px; line-height:1.2; margin:16px 0; }
 .hero>p { max-width:690px; font-size:13px; line-height:1.85; color:var(--muted); }
+.demoLink { display:inline-flex; align-items:center; gap:8px; margin-top:18px; font-size:12px; color:#3d6b84; font-weight:550; }
 .disclosure { display:flex; align-items:flex-start; gap:8px; font-size:10px; line-height:1.8; color:#8090a0; margin-top:18px; }
 .disclosure svg { flex-shrink:0; margin-top:2px; }
 .tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:22px; }

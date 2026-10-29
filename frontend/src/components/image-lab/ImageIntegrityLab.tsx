@@ -114,7 +114,7 @@ export default function ImageIntegrityLab() {
         <p>One altered pixel tells a different story. Seal an image, try to change it, and see what two verifiers discover—with a real Qiskit simulation behind the experiment.</p>
         <div className={styles.heroActions}>
           <button className={styles.primary} onClick={runDemo} disabled={disabled || !source || !capabilities}><Play size={15} fill="currentColor" /> Run guided demo <ArrowRight size={17} /></button>
-          <Link className={styles.textLink} href="/quantum-lab">Explore quantum experiments <ArrowRight size={15} /></Link>
+          <Link className={styles.textLink} href="/demo">Present the three-step demo <ArrowRight size={15} /></Link>
         </div>
       </div>
       <div className={styles.heroAside}>
