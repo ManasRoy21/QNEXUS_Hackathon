@@ -5,6 +5,7 @@ import statistics
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from app.core.config import settings
 
 from app.engine.protocol.practical_qds_engine import PracticalQDSEngine
 from app.engine.quantum.image_channel import wilson_interval
@@ -67,6 +68,10 @@ class ExperimentRunner:
         repo = repository()
         job, created = repo.create_experiment(request.model_dump(mode='json'), len(request.values) * request.repeats, idempotency_key)
         if created:
+            if settings.SERVERLESS_EXECUTION:
+                # Serverless runtimes can freeze threads after returning a response.
+                self.execute(repo, job['id'])
+                return repo.get_job(job['id']), created
             with self._lock:
                 if self._executor is None:
                     self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='qds-experiment')

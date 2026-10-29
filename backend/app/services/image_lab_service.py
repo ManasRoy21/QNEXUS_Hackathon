@@ -90,6 +90,7 @@ class ImageLabService:
     def capabilities(self):
         return {"algorithm": "Ed25519", "public_key": self.public_key, "key_id": self.key_id,
                 "persistent_key": self.persistent, "max_image_bytes": MAX_BYTES,
+                "storage_mode": "instance-temporary" if settings.SERVERLESS_EXECUTION else "local-sqlite",
                 "max_pixels": MAX_PIXELS, "grid_size": 8,
                 "model": "BB84 channel demonstration + classical signed image manifest",
                 "limitations": ["Local simulation, not IBM quantum hardware.",

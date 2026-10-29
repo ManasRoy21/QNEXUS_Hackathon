@@ -40,6 +40,7 @@ htmlcov/
 *.coveragerc
 
 # ── Node.js / Next.js ────────────────────────────────────────────
+.vercel/
 node_modules/
 .next/
 .next-dev/
@@ -117,3 +118,5 @@ transpiled_circuits/
 
 # ── Benchmark / test output ──────────────────────────────────────
 backend/app/tests/benchmark_results.json
+.vercel
+.env*

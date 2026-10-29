@@ -30,7 +30,7 @@ const STEPS = [
   { num: 6, label: 'Statistics', detail: 'Inspect the bounds', icon: Sigma },
 ];
 
-export default function SimulationWorkflow() {
+export default function SimulationWorkflow({ cloudDeployment = false }: { cloudDeployment?: boolean }) {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [protocols, setProtocols] = useState<ProtocolEntry[]>([]);
   const [selectedProtocol, setSelectedProtocol] = useState<string>('practical_qds');
@@ -223,6 +223,7 @@ export default function SimulationWorkflow() {
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className={styles.console}>
+      {cloudDeployment && <p className={styles.cloudNotice}>Cloud demo: saved runs are temporary and may become unavailable after a server restart or when traffic moves to another instance. Download your evidence; regenerate material if a run is no longer found.</p>}
       <section className={styles.journey} aria-label="Six-step research workflow">
         <div className={styles.journeyHeader}><div><span className={styles.overline}>EXPERIMENT WORKFLOW</span><span className={styles.progressCaption}>{STEPS.filter(step => stepCompleted(step.num)).length} of 6 milestones completed</span></div><button onClick={handleReset} disabled={loading} className={styles.resetButton}><RotateCcw size={13} /> Reset experiment</button></div>
         <nav aria-label="Experiment steps"><ol className={styles.steps}>

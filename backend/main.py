@@ -83,6 +83,7 @@ def health_check():
         "registered_attack_classes": [a.value for a in AttackType if a != AttackType.CLEAN],
         "zero_ml": True,
         "security_standard": "Educational simulation; see individual model assumptions",
+        "storage_mode": "instance-temporary" if settings.SERVERLESS_EXECUTION else "local-sqlite",
     }
 
 

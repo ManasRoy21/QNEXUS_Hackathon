@@ -7,6 +7,7 @@ from app.engine.attack_engine import state_store
 from app.schemas.experiments import ExperimentRequest
 from app.services.experiment_service import experiment_runner
 from app.storage.repository import repository
+from app.core.config import settings
 from app.schemas.message_evidence import SignMessageRequest, VerifyMessageRequest, MessageReceipt
 from app.services.message_evidence_service import sign_message, verify_message
 
@@ -33,7 +34,8 @@ def create(request: ExperimentRequest, idempotency_key: Annotated[str | None, He
 
 @router.get('/experiments')
 def list_experiments(limit: int = Query(20, ge=1, le=100)):
-    return {'experiments': repository().list_jobs(limit)}
+    return {'experiments': repository().list_jobs(limit),
+            'storage_mode': 'instance-temporary' if settings.SERVERLESS_EXECUTION else 'local-sqlite'}
 
 
 @router.get('/experiments/{identifier}')

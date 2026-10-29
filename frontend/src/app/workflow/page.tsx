@@ -13,7 +13,7 @@ export default function WorkflowPage() {
       </div>
       <Link href="/text-lab" className={styles.quickLink}><FileText size={17} /><span>Just testing a message?<strong>Open the text lab <ArrowUpRight size={13} /></strong></span></Link>
     </header>
-    <SimulationWorkflow />
+    <SimulationWorkflow cloudDeployment={!!process.env.VERCEL} />
     <div className={styles.scopeNote}><FlaskConical size={15} /><p><strong>Understand the model.</strong> Channel experiments run locally in a simulator. Message receipts use classical cryptography. These results do not establish complete QDS security or non-repudiation.</p><Link href="/research">Research notes <ArrowUpRight size={13} /></Link></div>
   </div>;
 }
