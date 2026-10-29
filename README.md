@@ -14,6 +14,7 @@ See [backend design, equations, limits and API](docs/backend-engine.md). The old
 
 ## What works
 
+- `/quantum-lab`: explicit-interception BB84 teaching workflow with sifting, sample testing, shuffled parity reconciliation, Toeplitz key shortening, and AES-GCM sample-payment authentication; shot-based CHSH entanglement experiments; opt-in, operator-protected IBM Quantum hardware jobs. See [setup, assumptions, and the hackathon explanation](docs/quantum-lab.md).
 - `/text-lab`: exact UTF-8 message integrity alongside the image lab. Seal text and a real Qiskit channel experiment in an Ed25519 receipt, edit a separate candidate, verify, restore, and download the evidence. Includes clean/noisy/intercepted scenarios and a guided text demo.
 - Original/candidate image comparison with a bundled synthetic orbital image, or your own still PNG/JPEG/WebP.
 - SHA-256 fingerprints of decoded RGBA pixels, dimensions, file bytes, and an 8×8 tile grid.

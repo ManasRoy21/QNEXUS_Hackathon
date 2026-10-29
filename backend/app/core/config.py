@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from pydantic import SecretStr
 try:
     from pydantic_settings import BaseSettings, SettingsConfigDict
 except ImportError:
@@ -16,6 +17,11 @@ class Settings(BaseSettings):
     QDS_DATABASE_PATH: str = ("/tmp/qds/qds.sqlite3" if os.getenv("VERCEL") else
                               str(Path(__file__).resolve().parents[2] / ".data" / "qds.sqlite3"))
     SERVERLESS_EXECUTION: bool = bool(os.getenv("VERCEL"))
+    IBM_QUANTUM_ENABLED: bool = False
+    IBM_QUANTUM_API_KEY: SecretStr | None = None
+    IBM_QUANTUM_INSTANCE: str | None = None
+    IBM_QUANTUM_BACKEND: str | None = None
+    QUANTUM_OPERATOR_TOKEN: SecretStr | None = None
     ALLOWED_ORIGINS: str = os.getenv(
         "ALLOWED_ORIGINS",
         "http://localhost:3000,http://127.0.0.1:3000,https://*.vercel.app",
