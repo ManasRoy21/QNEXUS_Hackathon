@@ -4,15 +4,11 @@ Open `/quantum-lab`. All simulator experiments run actual Qiskit Aer circuits. T
 
 ## Hackathon explanation
 
-### Guided three-step demo
+### Connected payment demo
 
-Open `/demo` from the main navigation. “Run the three-step demo” performs bounded live API checks for the first two steps and reveals a saved physical result for the third. It never submits a fresh QPU job. Each step can also be demonstrated separately, and the presenter can download its evidence.
+`/demo`, `/payments` and the home page now share one invoice-to-payment workflow. The image lab seals an invoice; the text lab seals the exact approval containing its hash and case transaction ID; the gateway signs both receipt digests and fingerprints using ML-DSA and verifies the actual candidates before mock settlement. See [the v2 flow and limits](payment-gateway.md#connected-invoice--approval--payment-flow-v2).
 
-1. Seal `Pay ₹100 to Rahul. Reference QN-204.` with an Ed25519 receipt, verify it, then check `Pay ₹1,000 to Rahul. Reference QN-204.` against that same receipt. The receipt remains authentic; the changed candidate gets `MESSAGE_CHANGED`. This is classical integrity protection.
-2. Compare 4,096-signal, seed-42 key exchanges with no background noise: no interception and 100% Eve interception. Display measured sample error rates, confidence intervals, and key-release verdicts. These are live Aer runs with exposed demonstration keys.
-3. Display completed IBM job `dbhpl1o1h92s73827stg` on `ibm_marrakesh`: four settings with 1,024 shots each. Its saved authenticated retrieval response lives in `frontend/src/data/hardware-bell-evidence.json`. Raw counts give **S = 1.943359375**, with a conservative 95% interval **[1.5451142473134745, 2.3416045026865255]**. This run **does not establish a confident Bell violation**. It must never be described as a successful nonlocality or security proof. The saved response is inspectable evidence, not an independently signed provider attestation. Tests independently recompute the score and interval from the counts.
-
-The guided page displays the actual physical result even when it falls below the bound. Replaying the page preserves IBM quota because it reads the recorded result. New physical experiments remain owner-authorized through the Quantum Lab. No operator password or IBM credential is included in the public artifact or evidence export.
+The IBM panel continues to display completed job `dbhpl1o1h92s73827stg`, with four 1,024-shot settings, S = 1.943359375 and no confident Bell violation. Viewing or replaying the connected flow does not submit a new QPU job. The key-exchange and entanglement experiments remain in `/quantum-lab`.
 
 Classical signatures already protect a document's integrity. The new experiments investigate a different question: how quantum-state preparation, measurement disturbance and entangled correlations behave. In the key-exchange lab, two simulated parties keep matching preparation/measurement settings, reveal a random test sample, reconcile disagreements, shorten their retained bit strings, and use the resulting demonstration key with ordinary AES-256-GCM. In the entanglement lab, an H and CNOT prepare a Bell pair; four rotated measurement settings produce a CHSH witness. The hardware adapter can submit those Bell circuits to an actual IBM Quantum processor when configured.
 

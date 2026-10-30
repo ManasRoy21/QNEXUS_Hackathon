@@ -4,7 +4,7 @@ A hackathon prototype for evaluating **post-quantum payment protection** between
 
 > Pitch: “Help payment engineers evaluate quantum-resistant security: preserve the exact instruction, settle it once, and measure the migration cost.”
 
-Open `/` or `/payments`, then **Run payment & attack demo**. Fake funds only; no UPI integration. The cloud ledger is temporary and instance-local, and missing sessions fail closed. See [protocol, API, limits and IBM separation](docs/payment-gateway.md) and the [runnable API example](examples/payment_gateway_client.py).
+Open `/`, `/payments` or `/demo`, then **Run the complete linked demo**. Seal one invoice image, seal its exact approval, and bind both fingerprints plus their Ed25519 receipt digests into one ML-DSA-signed payment instruction. Bank B checks actual candidate evidence and emits a receipt with the same transaction ID. Fake funds only; no UPI integration. The cloud ledger is temporary and instance-local, and missing sessions fail closed. See [protocol, API, limits and IBM separation](docs/payment-gateway.md) and the [runnable API example](examples/payment_gateway_client.py).
 
 ## Backend experiment engine
 
@@ -16,7 +16,7 @@ See [backend design, equations, limits and API](docs/backend-engine.md). The old
 
 ## What works
 
-- `/demo`: a guided hackathon presentation with live payment-tampering verification, a clean-versus-Eve channel comparison, and recorded IBM hardware counts from completed job `dbhpl1o1h92s73827stg`. The physical score is 1.943 with no confident Bell violation. Replaying the demo submits no new QPU jobs.
+- `/demo`: the same connected invoice → text approval → post-quantum payment → settlement receipt workflow, with actual candidate checks and one shared transaction ID. The separate IBM view retains completed hardware job `dbhpl1o1h92s73827stg`, score 1.943, without a confident Bell violation or new QPU submissions.
 - `/quantum-lab`: explicit-interception BB84 teaching workflow with sifting, sample testing, shuffled parity reconciliation, Toeplitz key shortening, and AES-GCM sample-payment authentication; shot-based CHSH entanglement experiments; opt-in, operator-protected IBM Quantum hardware jobs. See [setup, assumptions, and the hackathon explanation](docs/quantum-lab.md).
 - `/text-lab`: exact UTF-8 message integrity alongside the image lab. Seal text and a real Qiskit channel experiment in an Ed25519 receipt, edit a separate candidate, verify, restore, and download the evidence. Includes clean/noisy/intercepted scenarios and a guided text demo.
 - Original/candidate image comparison with a bundled synthetic orbital image, or your own still PNG/JPEG/WebP.

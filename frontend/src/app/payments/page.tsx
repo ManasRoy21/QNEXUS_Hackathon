@@ -1,3 +1,3 @@
 import PaymentGateway from '@/components/payments/PaymentGateway';
-export const metadata = { title:'QNexus | Quantum-Safe Payment Gateway', description:'Real post-quantum payment protection, two mock banks, controlled attack testing, and recorded IBM qubit measurements.' };
+export const metadata = { title:'QNexus | Invoice, Approval & Quantum-Safe Payment', description:'One evidence chain binds an invoice image and exact approval text to a post-quantum payment instruction and signed settlement receipt.' };
 export default function PaymentsPage() { return <PaymentGateway />; }

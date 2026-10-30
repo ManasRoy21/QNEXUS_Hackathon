@@ -1,8 +1,8 @@
-import GuidedDemo from '@/components/demo/GuidedDemo';
+import PaymentGateway from '@/components/payments/PaymentGateway';
 
 export const metadata = {
-  title: 'QNexus | Guided Hackathon Demo',
-  description: 'Detect an altered payment, simulate interception, and inspect a recorded IBM Quantum hardware experiment.',
+  title: 'QNexus | Linked Invoice-to-Payment Demo',
+  description: 'One verified chain: invoice image, exact approval, post-quantum payment and signed settlement receipt.',
 };
 
-export default function DemoPage() { return <GuidedDemo />; }
+export default function DemoPage() { return <PaymentGateway />; }

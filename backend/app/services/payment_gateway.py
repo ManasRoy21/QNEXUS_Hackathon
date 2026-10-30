@@ -26,8 +26,9 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from fastapi import HTTPException
 from app.core.config import settings
 from app.schemas.payments import PaymentInstruction, PaymentEnvelope, SUITE
+from app.services import payment_evidence
 
-PAYMENT_CONTEXT = b'QNEXUS_PAYMENT_V1'
+PAYMENT_CONTEXT = b'QNEXUS_PAYMENT_V2'
 RECEIPT_CONTEXT = b'QNEXUS_RECEIPT_V1'
 SCOPE = 'Fake funds only. Single-backend mock banks; instance-local temporary SQLite ledger. No UPI/NPCI connection, independent bank identity, or production-security certification.'
 INITIAL = {'alice@demo': 1_000_000, 'rahul@demo': 200_000, 'mallory@demo': 0}
@@ -62,6 +63,10 @@ def connection():
         session_id TEXT NOT NULL REFERENCES payment_sessions(id) ON DELETE CASCADE,
         transaction_id TEXT NOT NULL, nonce TEXT NOT NULL, receipt TEXT NOT NULL,
         signature TEXT NOT NULL, PRIMARY KEY(session_id,transaction_id), UNIQUE(session_id,nonce));
+      CREATE TABLE IF NOT EXISTS payment_cases (
+        id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES payment_sessions(id) ON DELETE CASCADE,
+        amount_paise INTEGER NOT NULL, payee TEXT NOT NULL, invoice_reference TEXT NOT NULL,
+        invoice_receipt TEXT, approval_receipt TEXT, revision INTEGER NOT NULL DEFAULT 0);
     ''')
     try:
         with con:
@@ -174,13 +179,21 @@ def unwrap(envelope, row):
 def prepare(sid, token, request):
     with connection() as con:
         row = session(con, sid, token)
+        case = payment_evidence.case(con,sid,request.case_id)
+        payment_evidence.require_open(con,sid,request.case_id)
+    if request.amount_paise != case['amount_paise'] or request.payee != case['payee'] or request.invoice_reference != case['invoice_reference']:
+        raise HTTPException(422,'Payment details must match the sealed invoice approval case. Start a new case for different details.')
+    verified = payment_evidence.check(case,request.candidate)
+    if not verified['valid']:
+        raise HTTPException(409,verified['explanation'])
     a, _, _ = keys(row)
     now = int(time.time())
-    payload = PaymentInstruction(session_id=sid, transaction_id=uuid4().hex, nonce=secrets.token_hex(16),
-        payee=request.payee, amount_paise=request.amount_paise, issued_at=now, expires_at=now+120).model_dump()
+    payload = PaymentInstruction(session_id=sid, transaction_id=case['id'], nonce=secrets.token_hex(16),
+        payee=request.payee, amount_paise=request.amount_paise, issued_at=now, expires_at=now+120,evidence=verified['binding']).model_dump()
     signature, sign_ms = timed(lambda: a.sign(canonical(payload), context=PAYMENT_CONTEXT))
     envelope, metrics = wrap(payload, b64(signature), row)
     return dict(instruction=payload, envelope=envelope, metrics={**metrics, 'sign_ms': sign_ms},
+                evidence=payment_evidence.public_case(case), evidence_check=verified,
                 explanation='Bank A signed the exact instruction; the wire envelope contains encrypted signed data. Private keys and the shared key remain on the server.')
 
 
@@ -211,7 +224,7 @@ def inject(sid, token, request):
         else 'Controlled plaintext-aware injection: re-encrypt changed data with the receiver’s public key while keeping the original sender signature. This does not model breaking encryption.'))
 
 
-def receive(sid, token, envelope):
+def receive(sid, token, envelope, candidate=None):
     started = time.perf_counter_ns()
     with connection() as con:
         row = session(con, sid, token)
@@ -232,9 +245,22 @@ def receive(sid, token, envelope):
     if payload['session_id'] != sid or payload['issued_at'] > now+5 or payload['expires_at'] <= now or not 0 < payload['expires_at']-payload['issued_at'] <= 120:
         return rejected('EXPIRED_OR_INVALID_TIME', 'The authenticated instruction is expired, future-dated, or outside the permitted lifetime.')
     with connection() as con:
+        linked_case = payment_evidence.case(con,sid,payload['transaction_id'])
+    checked = payment_evidence.check(linked_case,candidate,payload['evidence'])
+    if not checked['valid']:
+        return {**rejected(checked['verdict'],checked['explanation']), 'evidence_check':checked}
+    if payload['amount_paise'] != linked_case['amount_paise'] or payload['payee'] != linked_case['payee']:
+        return rejected('APPROVAL_REJECTED','The signed payment details do not match the case’s approval.')
+    with connection() as con:
         con.execute('BEGIN IMMEDIATE')
         current = session(con, sid, token, charge=False)
         balances = json.loads(current['balances'])
+        if payload['expires_at'] <= int(time.time()):
+            return dict(accepted=False,verdict='EXPIRED_OR_INVALID_TIME',explanation='The instruction expired before the ledger could commit.',balances=balances,receipt=None,metrics=metrics,scope=SCOPE)
+        # Recheck under the ledger write lock to prevent a reseal racing settlement.
+        locked_case = payment_evidence.case(con,sid,payload['transaction_id'])
+        if locked_case['revision'] != linked_case['revision']:
+            return dict(accepted=False,verdict='EVIDENCE_STALE',explanation='The evidence changed during verification. Prepare a fresh instruction.',balances=balances,receipt=None,metrics=metrics,scope=SCOPE)
         duplicate = con.execute('SELECT 1 FROM payment_ledger WHERE session_id=? AND (transaction_id=? OR nonce=?)',
                                 (sid, payload['transaction_id'], payload['nonce'])).fetchone()
         if duplicate:
@@ -243,16 +269,16 @@ def receive(sid, token, envelope):
             return dict(accepted=False, verdict='INSUFFICIENT_FUNDS', explanation='The sender has insufficient demo funds. Balances are unchanged.', balances=balances, receipt=None, metrics=metrics, scope=SCOPE)
         balances[payload['payer']] -= payload['amount_paise']
         balances[payload['payee']] += payload['amount_paise']
-        receipt = dict(version='qnexus-payment-receipt/v1', session_id=sid,
+        receipt = dict(version='qnexus-payment-receipt/v2', session_id=sid,
             transaction_id=payload['transaction_id'], instruction_sha256=hashlib.sha256(canonical(payload)).hexdigest(),
             payer=payload['payer'], payee=payload['payee'], amount_paise=payload['amount_paise'], currency='INR',
-            settled_at=now, balances_after=balances, bank_b_key_id=key_id(b))
+            settled_at=now, balances_after=balances, bank_b_key_id=key_id(b),evidence=payload['evidence'])
         receipt_signature = b64(b.sign(canonical(receipt), context=RECEIPT_CONTEXT))
         con.execute('INSERT INTO payment_ledger VALUES(?,?,?,?,?)', (sid, payload['transaction_id'], payload['nonce'], json.dumps(receipt), receipt_signature))
         con.execute('UPDATE payment_sessions SET balances=? WHERE id=?', (json.dumps(balances), sid))
     metrics['receiver_total_ms'] = (time.perf_counter_ns()-started)/1e6
     return dict(accepted=True, verdict='SETTLED', explanation='Bank B verified the encrypted signed instruction and atomically moved demo funds exactly once.',
-                balances=balances, receipt=dict(receipt=receipt, signature=receipt_signature), metrics=metrics, scope=SCOPE)
+                balances=balances, receipt=dict(receipt=receipt, signature=receipt_signature), metrics=metrics, scope=SCOPE,evidence_check=checked)
 
 
 def verify_receipt(sid, token, request):

@@ -5,7 +5,7 @@ import { Fingerprint, ArrowUpRight } from 'lucide-react';
 
 export const metadata = {
   title: 'QNexus | Quantum-Safe Payment Gateway',
-  description: 'A post-quantum payment gateway prototype with real ML-KEM and ML-DSA, two mock banks, attack testing, and recorded IBM qubit evidence.',
+  description: 'A connected invoice-to-payment prototype: seal the image, approve the exact text, bind both fingerprints into a post-quantum instruction, and verify the settlement receipt.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
