@@ -1,8 +1,10 @@
-# QDS Lab — Image Integrity × Quantum Experiments
+# QNexus — Quantum-Safe Payment Gateway
 
-A hackathon research workbench for **image integrity**, **actual Qiskit channel-distribution experiments**, and **repeated-trial attack evaluation**. The landing page is an interactive experiment, backed by actual Qiskit Aer execution and authenticated, downloadable evidence.
+A hackathon prototype for evaluating **post-quantum payment protection** between two mock banks. The home page uses actual ML-KEM-768, ML-DSA-65 and AES-256-GCM, with atomic mock settlement, replay rejection, signed receipts, controlled attacks and measured classical/PQ tradeoffs. A separate view shows recorded measurements of two logical qubits on a real IBM processor. Existing image/text and quantum research labs remain available.
 
-> Pitch: “A crash-test lab for digital trust. Seal an image, change a single pixel, and show the evidence. Then stress a quantum channel and inspect the measurements.”
+> Pitch: “Help payment engineers evaluate quantum-resistant security: preserve the exact instruction, settle it once, and measure the migration cost.”
+
+Open `/` or `/payments`, then **Run payment & attack demo**. Fake funds only; no UPI integration. The cloud ledger is temporary and instance-local, and missing sessions fail closed. See [protocol, API, limits and IBM separation](docs/payment-gateway.md) and the [runnable API example](examples/payment_gateway_client.py).
 
 ## Backend experiment engine
 

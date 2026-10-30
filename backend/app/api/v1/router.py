@@ -14,6 +14,7 @@ from app.api.v1.endpoints import (
     experiments,
     text_lab,
     quantum_lab,
+    payments,
 )
 
 api_router = APIRouter()
@@ -21,6 +22,7 @@ api_router.include_router(experiments.router, tags=["experiments"])
 api_router.include_router(image_lab.router, prefix="/image-lab", tags=["image-lab"])
 api_router.include_router(text_lab.router, prefix="/text-lab", tags=["text-lab"])
 api_router.include_router(quantum_lab.router, prefix="/quantum-lab", tags=["quantum-lab"])
+api_router.include_router(payments.router, prefix="/payments", tags=["payments"])
 
 # Target Protocol-Aware Simulation Endpoints (REQ-QDS-SIM-2026-V1)
 api_router.include_router(simulation.router, prefix="/simulation", tags=["simulation"])
